@@ -14,7 +14,7 @@ namespace SayiTools
             Array.Sort(textures, (UnityEngine.Object one, UnityEngine.Object two) => one.name.CompareTo(two.name));
             bool selectionIsValid = ValidateTextures(textures);
 
-            if(selectionIsValid == false)
+            if (selectionIsValid == false)
             {
                 Debug.LogError("Unable to create TextureArray; Please check all files have the same width/height/format.");
                 return;
@@ -24,9 +24,9 @@ namespace SayiTools
             string assetPath = AssetDatabase.GetAssetPath(textures[0]);
             assetPath = assetPath.Remove(assetPath.LastIndexOf('/')) + "/GeneratedTextureArray.asset";
 
-            for(int i = 0; i< textures.Length; i++)
+            for (int i = 0; i < textures.Length; i++)
             {
-                for(int mipMap = 0; mipMap < textures[i].mipmapCount; mipMap++)
+                for (int mipMap = 0; mipMap < textures[i].mipmapCount; mipMap++)
                 {
                     Graphics.CopyTexture(textures[i], 0, mipMap, textureArray, i, mipMap);
                 }
@@ -40,9 +40,9 @@ namespace SayiTools
 
         private static bool ValidateTextures(Texture2D[] textures)
         {
-            for(int i = 1; i < textures.Length; i++)
+            for (int i = 1; i < textures.Length; i++)
             {
-                if((textures[i].width != textures[0].width)
+                if ((textures[i].width != textures[0].width)
                     || (textures[i].height != textures[0].height)
                     || (textures[i].format != textures[0].format))
                 {
