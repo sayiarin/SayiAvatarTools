@@ -2,7 +2,7 @@
 
 ## TextureArrayManagerEditor
 
-A custom Editor for [CreateTexture2DArrayFromSelection.cs](../MenuItem/CreateTexture2DArrayFromSelection.cs).
+A custom Editor for the [TextureArrayManager](../ScriptableObjects/TextureArrayManager.cs).
 
 This allows for a much nicer workflow when working with Texture2DArrays because this object will keep references to the original images and the array size and content can be changed at will.
 
