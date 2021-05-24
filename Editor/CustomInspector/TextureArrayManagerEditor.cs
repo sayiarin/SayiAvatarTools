@@ -6,12 +6,12 @@ namespace SayiTools
     [CustomEditor(typeof(TextureArrayManager))]
     public class TextureArrayManagerEditor : Editor
     {
-        private static string textureArrayAssetNamePrefix = "2DArray";
-        private static string textureArrayInfoMessage = "The here referenced Texture2DArray will be overwriten with the new values once you press \"Generate Texture2DArray\".\n" +
+        private const string textureArrayAssetNamePrefix = "2DArray";
+        private const string textureArrayInfoMessage = "The here referenced Texture2DArray will be overwriten with the new values once you press \"Generate Texture2DArray\".\n" +
             "If none is set this tool will create one for you here with the name {0}.";
-        private static string texturesInvalidErrorMessage = "The textures selected are not valid for Texture2DArray creation!\n" +
+        private const string texturesInvalidErrorMessage = "The textures selected are not valid for Texture2DArray creation!\n" +
             "Please make sure all the Textures selected share the same width, height and format.";
-        private static string unableToGenerateTextureArrayErrorMessage = "TextureArrayManagerEditor {0}:\nThe textures selected are not valid, please see the info on the inspector window for Details!";
+        private const string unableToGenerateTextureArrayErrorMessage = "TextureArrayManagerEditor {0}:\nThe textures selected are not valid, please see the info on the inspector window for Details!";
 
         SerializedProperty serializedTexture2DArray;
         SerializedProperty serializedTexture2D;
@@ -24,19 +24,11 @@ namespace SayiTools
 
         public override void OnInspectorGUI()
         {
-            GUIStyle headerStyle = new GUIStyle();
-            headerStyle.fontStyle = FontStyle.Bold;
-            headerStyle.fontSize = 18;
-            headerStyle.normal.textColor = Color.cyan;
-            headerStyle.alignment = TextAnchor.MiddleCenter;
-
             EditorGUILayout.BeginVertical();
-            GUILayout.Label("Texture Array Manager", headerStyle);
-            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
-            GUILayout.Space(EditorGUIUtility.singleLineHeight);
+            EditorGUIHelper.HeaderLevel1("Texture Array Manager");
 
             EditorGUILayout.PropertyField(serializedTexture2D, includeChildren: true);
-            GUILayout.Space(EditorGUIUtility.singleLineHeight);
+            EditorGUIHelper.Separator();            
 
             EditorGUILayout.PropertyField(serializedTexture2DArray);
             EditorGUILayout.HelpBox(string.Format(textureArrayInfoMessage, GetTexture2DArrayAssetName()), MessageType.Info);
@@ -78,7 +70,7 @@ namespace SayiTools
                 {
                     string assetPath = AssetDatabase.GetAssetPath(target);
                     assetPath = assetPath.Remove(assetPath.LastIndexOf('/'));
-                    assetPath = string.Format("{0}/{1}.{2}", assetPath, GetTexture2DArrayAssetName(), "asset");
+                    assetPath = string.Format("{0}/{1}.asset", assetPath, GetTexture2DArrayAssetName());
                     AssetDatabase.CreateAsset(newTexture2DArray, assetPath);
                     AssetDatabase.SaveAssets();
 

@@ -6,7 +6,6 @@ namespace SayiTools
 {
     public class CreateTexture2DArrayFromSelection : ScriptableObject
     {
-        #region Create Asset Menu
         [MenuItem("Assets/Sayi Tools/Create Texture Array From Selection", false, 100)]
         private static void Texture2DArrayCreator()
         {
@@ -35,6 +34,5 @@ namespace SayiTools
         {
             return Selection.GetFiltered<Texture2D>(SelectionMode.TopLevel).Length > 0;
         }
-        #endregion
     }
 }
