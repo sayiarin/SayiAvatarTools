@@ -16,8 +16,6 @@ VertexData VertexFunction(MeshData meshData)
 	#ifdef _USES_LIGHTING
 		output.worldNormal = UnityObjectToWorldNormal(meshData.normal);
 		output.viewDirection = WorldSpaceViewDir(meshData.vertex);
-		// receiving shadows
-		TRANSFER_SHADOW(o);
 	#endif
 
 	return output;

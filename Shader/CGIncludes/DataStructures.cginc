@@ -25,10 +25,8 @@ struct VertexData
     #endif
 
     #ifdef _USES_LIGHTING
-        float3 worldNormal: NORMAL0;
+        float3 worldNormal: NORMAL;
         float3 viewDirection: TEXCOORD2;
-        // to receive shadows
-        SHADOW_COORDS(2)
     #endif
 };
 
