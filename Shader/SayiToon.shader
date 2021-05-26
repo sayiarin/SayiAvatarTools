@@ -22,7 +22,7 @@
         _OutlineWidth("Outline Width", Range(0, 0.01)) = 0
         [HDR]_OutlineColour("Outline Colour", Color) = (0, 0, 0, 0)
         [Space]
-        _HueShift("HueShift", Range(0, 1)) = 0
+        _HueShift("HueShift", Range(-1, 1)) = 0
         _SaturationValue("Saturation", Range(0, 10)) = 1
         _ColourValue("Value", Range(0, 10)) = 1
         _HSVMask("HSV Mask", 2D) = "white" {}
