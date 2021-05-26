@@ -17,12 +17,15 @@
         [Header(Lighting Settings)]
         _ShadowStrength("Strength", Range(0, 1)) = 0.5
         _ShadowSmoothness("Smoothness", Range(0, 1)) = 0.05
-        _ShadowRamp("Shadow Ramp", 2D) = "white" {}
         [Space]
         [Header(Special Effects)]
         _OutlineWidth("Outline Width", Range(0, 0.01)) = 0
         [HDR]_OutlineColour("Outline Colour", Color) = (0, 0, 0, 0)
-
+        [Space]
+        _HueShift("HueShift", Range(0, 1)) = 0
+        _SaturationValue("Saturation", Range(0, 10)) = 1
+        _ColourValue("Value", Range(0, 10)) = 1
+        _HSVMask("HSV Mask", 2D) = "white" {}
     }
 
     SubShader
@@ -50,13 +53,22 @@
             #include "Lighting.cginc"
             #include "AutoLight.cginc"
             #include "CGIncludes/VertexFunction.cginc"
+            #include "CGIncludes/ColourUtilities.cginc"
 
             // texture variables
             uniform sampler2D _MainTex;
             uniform UNITY_DECLARE_TEX2DARRAY(_BaseTextures);
             uniform int _TextureIndex;
+            
+            // lighting and shadows
             uniform float _ShadowSmoothness;
             uniform float _ShadowStrength;
+
+            // hsv
+            uniform sampler2D _HSVMask;
+            uniform float _HueShift;
+            uniform float _SaturationValue;
+            uniform float _ColourValue;
 
             float4 Fragment (VertexData fragIn) :SV_TARGET
             {
@@ -70,10 +82,18 @@
                 float lightIntensity = smoothstep(0, _ShadowSmoothness, diffuseLight);
                 lightIntensity += (1 - _ShadowStrength);
 
-
                 lightIntensity = saturate(lightIntensity);
                 colour *= lightIntensity * _LightColor0;
 
+                float hsvMask = tex2D(_HSVMask, fragIn.uv);
+
+                float3 hsv = RGBtoHSV(colour.xyz);
+                hsv.x *= 1 + _HueShift;
+                hsv.y *= _SaturationValue;
+                hsv.z *= _ColourValue;
+                float4 rgbNew = HSVtoRGB(hsv);
+                colour = lerp(colour, rgbNew, hsvMask);
+                
                 return colour;
             }
             ENDCG
