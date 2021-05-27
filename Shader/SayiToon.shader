@@ -19,12 +19,17 @@
         _ShadowSmoothness("Smoothness", Range(0, 1)) = 0.05
         [Space]
         [Header(Special Effects)]
+        [Toggle]_EnableOutline("Enable Outline", int) = 0
         _OutlineWidth("Outline Width", Range(0, 0.01)) = 0
         [HDR]_OutlineColour("Outline Colour", Color) = (0, 0, 0, 0)
         [Space]
+        [Toggle]_EnableWireframe("Enable Wireframe", int) = 0
+        _WireframeWidth("Wireframe Width", Range(0, 5)) = 0.1
+        [HDR]_WireframeColour("Wireframe Colour", Color) = (1, 1, 1, 1)
+        [Space]
         _HueShift("HueShift", Range(-1, 1)) = 0
-        _SaturationValue("Saturation", Range(0, 10)) = 1
-        _ColourValue("Value", Range(0, 10)) = 1
+        _SaturationValue("Saturation", Range(0, 20)) = 1
+        _ColourValue("Value", Range(0, 20)) = 1
         _HSVMask("HSV Mask", 2D) = "white" {}
     }
 
@@ -41,22 +46,31 @@
                 "PassFlags" = "OnlyDirectional"
             }
             Name "Sayi Toon Base"
+            
+            Cull Off
+            ZWrite On
 
             CGPROGRAM
             #pragma vertex VertexFunction
+            #pragma geometry GeometryFunction
             #pragma fragment Fragment
             #pragma multi_compile_fwdbase
 
             #define _USES_LIGHTING
+            #define _USES_GEOMETRY
+            #define _NEEDS_VERTEX_NORMAL
+            #define _RECEIVES_SHADOWS
 
             #include "UnityCG.cginc"
             #include "Lighting.cginc"
             #include "AutoLight.cginc"
+
             #include "CGIncludes/VertexFunction.cginc"
+            #include "CGIncludes/GeometryFunction.cginc"
             #include "CGIncludes/ColourUtilities.cginc"
+            #include "CGIncludes/Wireframe.cginc"
 
             // texture variables
-            uniform sampler2D _MainTex;
             uniform UNITY_DECLARE_TEX2DARRAY(_BaseTextures);
             uniform int _TextureIndex;
             
@@ -64,36 +78,42 @@
             uniform float _ShadowSmoothness;
             uniform float _ShadowStrength;
 
+            // Wireframe
+            uniform int _EnableWireframe;
+
             // hsv
-            uniform sampler2D _HSVMask;
             uniform float _HueShift;
             uniform float _SaturationValue;
             uniform float _ColourValue;
+            uniform sampler2D _HSVMask;
 
-            float4 Fragment (VertexData fragIn) :SV_TARGET
+            float4 Fragment (Interpolators fragIn) : SV_TARGET
             {
                 // get currently active texture from array as colour that will be output at the end
                 float4 colour = UNITY_SAMPLE_TEX2DARRAY(_BaseTextures, float3(fragIn.uv, _TextureIndex));
 
                 // shadow wooo
-                float3 normal = normalize(fragIn.worldNormal);
-                float diffuseLight = saturate(dot(_WorldSpaceLightPos0, normal));
-
-                float lightIntensity = smoothstep(0, _ShadowSmoothness, diffuseLight);
+                float3 worldNormal = normalize(fragIn.worldNormal);
+                float diffuseLight = saturate(dot(_WorldSpaceLightPos0, worldNormal));
+                
+                float lightAttenuation = LIGHT_ATTENUATION(fragIn);
+                float lightIntensity = smoothstep(0, _ShadowSmoothness, diffuseLight * lightAttenuation);
                 lightIntensity += (1 - _ShadowStrength);
 
                 lightIntensity = saturate(lightIntensity);
                 colour *= lightIntensity * _LightColor0;
 
+                // hsv stuff
                 float hsvMask = tex2D(_HSVMask, fragIn.uv);
-
-                float3 hsv = RGBtoHSV(colour.xyz);
-                hsv.x *= 1 + _HueShift;
-                hsv.y *= _SaturationValue;
-                hsv.z *= _ColourValue;
-                float4 rgbNew = HSVtoRGB(hsv);
+                float4 rgbNew = ApplyHSVChangesToRGB(colour, float3(_HueShift, _SaturationValue, _ColourValue));
                 colour = lerp(colour, rgbNew, hsvMask);
                 
+                // wireframe
+                if(_EnableWireframe == 1)
+                {
+                    colour = ApplyWireframeColour(colour, fragIn, worldNormal);
+                }
+
                 return colour;
             }
             ENDCG
@@ -104,13 +124,44 @@
             Tags { "RenderType" = "Opaque" }
             Name "Sayi Toon Outline"
         
+            LOD 200
             Cull Front
+            ZWrite On
         
             CGPROGRAM
             #pragma vertex Vertex
             #pragma fragment Fragment
 
             #include "CGIncludes/Outline.cginc"
+            ENDCG
+        }
+
+        Pass
+        {
+            Tags { "LightMode" = "ShadowCaster" }
+
+            CGPROGRAM
+            #pragma vertex Vertex
+            #pragma fragment Fragment
+            #pragma multi_compile_shadowcaster
+            #include "UnityCG.cginc"
+
+            struct Interpolators
+            {
+                V2F_SHADOW_CASTER;
+            };
+
+            Interpolators Vertex(appdata_base v)
+            {
+                Interpolators output;
+                TRANSFER_SHADOW_CASTER_NORMALOFFSET(output)
+                return output;
+            }
+
+            float4 Fragment(Interpolators fragIn) : SV_TARGET
+            {
+                SHADOW_CASTER_FRAGMENT(fragIn);
+            }
             ENDCG
         }
     }

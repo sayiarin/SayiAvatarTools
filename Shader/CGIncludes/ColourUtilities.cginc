@@ -38,3 +38,12 @@ float4 RGBtoHSV(in float3 RGB)
 
     return float4(HSV,1);
 }
+
+float4 ApplyHSVChangesToRGB(float4 colour, float3 hsvChanges)
+{
+    float3 hsvColour = RGBtoHSV(colour.xyz);
+    hsvColour.x *= 1 + hsvChanges.x;
+    hsvColour.y *= hsvChanges.y;
+    hsvColour.z *= hsvChanges.z;
+    return HSVtoRGB(hsvColour);
+}

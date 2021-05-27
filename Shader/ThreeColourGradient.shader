@@ -48,7 +48,7 @@ Shader "Sayiarin/ThreeColourGradient"
 				return (value - a) / (b - a);
 			}
 
-			fixed4 Fragment(VertexData fragIn) : COLOR
+			fixed4 Fragment(Interpolators fragIn) : COLOR
 			{
 				if(fragIn.uv.x < _CenterPosition)
 				{

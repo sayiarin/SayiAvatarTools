@@ -5,6 +5,7 @@
         
 #include "UnityCG.cginc"
         
+uniform float _EnableOutline;
 uniform float4 _OutlineColour;
 uniform float _OutlineWidth;
         
@@ -31,5 +32,6 @@ VertexData Vertex(MeshData meshData)
         
 float4 Fragment(VertexData vertexData) : SV_TARGET
 {
+    if(_EnableOutline == 0) discard;
     return _OutlineColour;
 }

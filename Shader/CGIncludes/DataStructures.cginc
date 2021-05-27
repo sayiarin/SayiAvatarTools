@@ -14,10 +14,10 @@ struct MeshData
     #endif
 };
 
-// datatype to pass from Vertex to Fragment function
-struct VertexData
+// Interpolators getting passed around
+struct Interpolators
 {
-    float4 vertex: SV_POSITION;
+    float4 pos: SV_POSITION;
     float2 uv: TEXCOORD0;
 
     #ifdef _NEEDS_GRAB_UV
@@ -25,8 +25,16 @@ struct VertexData
     #endif
 
     #ifdef _USES_LIGHTING
-        float3 worldNormal: NORMAL;
-        float3 viewDirection: TEXCOORD2;
+        float3 worldNormal: NORMAL0;
+        LIGHTING_COORDS(4, 5)
+    #endif
+
+    #ifdef _NEEDS_VERTEX_NORMAL
+        float3 vertexNormal: NORMAL1;
+    #endif
+
+    #ifdef _USES_GEOMETRY
+        float3 edgeDistance: TEXCOORD3;
     #endif
 };
 

@@ -34,7 +34,7 @@
 			float _PixelSizeY;
 			sampler2D _GrabbedTexture;
 
-			float4 Fragment(VertexData fragIn) : COLOR
+			float4 Fragment(Interpolators fragIn) : COLOR
 			{
 				float2 distortionValues = float2(_PixelSizeX, _PixelSizeY);
 				float2 pixelation = fragIn.grabUV.xy / fragIn.grabUV.w;
