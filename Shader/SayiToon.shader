@@ -63,6 +63,7 @@
 
             #include "UnityCG.cginc"
             #include "Lighting.cginc"
+            #include "UnityLightingCommon.cginc"
             #include "AutoLight.cginc"
 
             #include "CGIncludes/VertexFunction.cginc"
@@ -99,9 +100,19 @@
                 float lightAttenuation = LIGHT_ATTENUATION(fragIn);
                 float lightIntensity = smoothstep(0, _ShadowSmoothness, diffuseLight * lightAttenuation);
                 lightIntensity += (1 - _ShadowStrength);
-
                 lightIntensity = saturate(lightIntensity);
-                colour *= lightIntensity * _LightColor0;
+                colour *= lightIntensity;
+
+                // add light probes
+                float3 lightProbe = ShadeSH9(float4(worldNormal, 1));
+                lightProbe *= lightIntensity;
+                colour.xyz += colour * lightProbe;
+
+                // apply direction light
+                float3  directLightColour = _LightColor0.rgb;
+                directLightColour *= lightIntensity;
+                directLightColour *= colour.rgb;
+                colour.xyz += colour.xyz * directLightColour;
 
                 // hsv stuff
                 float hsvMask = tex2D(_HSVMask, fragIn.uv);
