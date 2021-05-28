@@ -36,6 +36,7 @@
         [Toggle]_EnableGlow("Enable Glow", int) = 0
         _GlowTexture("Glow Texture", 2D) = "black" {}
         _GlowIntensity("Glow Intensity", Range(1, 100)) = 10
+        [Toggle]_EnableGlowColourChange("Enable Colour Change Over Time", int) = 0
         _GlowSpeed("Glow Colour Change Speed", Range(0.1, 60)) = 1
     }
 
@@ -94,6 +95,7 @@
 
             // glow
             uniform int _EnableGlow;
+            uniform int _EnableGlowColourChange;
             uniform sampler2D _GlowTexture;
             uniform float _GlowIntensity;
             uniform float _GlowSpeed;
@@ -108,7 +110,12 @@
                 float4 glowColour = tex2D(_GlowTexture, fragIn.uv);
                 if(_EnableGlow && glowColour.a > 0)
                 {
-                    colour = ApplyHSVChangesToRGB(colour, float3(_Time.y / _GlowSpeed, 0, _GlowIntensity));
+                    float4 combinedColour = (colour * glowColour) * 0.5;
+                    // _EnableGlowColourChange can only be 0 or 1 so this will be fiiiine
+                    float glowHueShift = lerp(0, (_Time.y / _GlowSpeed), _EnableGlowColourChange);
+
+                    // we still call this either way otherwise the brightness gain would be inconsistent
+                    colour = ApplyHSVChangesToRGB(combinedColour, float3(glowHueShift, 0, _GlowIntensity));
                 }
                 else
                 {
