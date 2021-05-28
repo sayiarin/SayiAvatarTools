@@ -28,10 +28,15 @@
         [HDR]_WireframeColour("Wireframe Colour", Color) = (1, 1, 1, 1)
         _WireframeFadeOutDistance("Wireframe Fade Out Distance", Range(0, 10)) = 1
         [Space]
-        _HueShift("HueShift", Range(-1, 1)) = 0
+        _HueShift("HueShift", Range(0, 1)) = 0
         _SaturationValue("Saturation", Range(0, 20)) = 1
         _ColourValue("Value", Range(0, 20)) = 1
         _HSVMask("HSV Mask", 2D) = "white" {}
+        [Space]
+        [Toggle]_EnableGlow("Enable Glow", int) = 0
+        _GlowTexture("Glow Texture", 2D) = "black" {}
+        _GlowIntensity("Glow Intensity", Range(1, 100)) = 10
+        _GlowSpeed("Glow Colour Change Speed", Range(0.1, 60)) = 1
     }
 
     SubShader
@@ -87,36 +92,52 @@
             uniform float _ColourValue;
             uniform sampler2D _HSVMask;
 
+            // glow
+            uniform int _EnableGlow;
+            uniform sampler2D _GlowTexture;
+            uniform float _GlowIntensity;
+            uniform float _GlowSpeed;
+
             float4 Fragment (Interpolators fragIn) : SV_TARGET
             {
                 // get currently active texture from array as colour that will be output at the end
                 float4 colour = UNITY_SAMPLE_TEX2DARRAY(_BaseTextures, float3(fragIn.uv, _TextureIndex));
-
-                // shadow wooo
                 float3 worldNormal = normalize(fragIn.worldNormal);
-                float diffuseLight = saturate(dot(_WorldSpaceLightPos0, worldNormal));
-                
-                float lightAttenuation = LIGHT_ATTENUATION(fragIn);
-                float lightIntensity = smoothstep(0, _ShadowSmoothness, diffuseLight * lightAttenuation);
-                lightIntensity += (1 - _ShadowStrength);
-                lightIntensity = saturate(lightIntensity);
-                colour *= lightIntensity;
 
-                // add light probes
-                float3 lightProbe = ShadeSH9(float4(worldNormal, 1));
-                lightProbe *= lightIntensity;
-                colour.xyz += colour * lightProbe;
+                // check for glow effect first because if there's any I will just ignore any light input
+                float4 glowColour = tex2D(_GlowTexture, fragIn.uv);
+                if(_EnableGlow && glowColour.a > 0)
+                {
+                    colour = ApplyHSVChangesToRGB(colour, float3(_Time.y / _GlowSpeed, 0, _GlowIntensity));
+                }
+                else
+                {
+                    // shadow wooo
+                    float diffuseLight = saturate(dot(_WorldSpaceLightPos0, worldNormal));
 
-                // apply direction light
-                float3  directLightColour = _LightColor0.rgb;
-                directLightColour *= lightIntensity;
-                directLightColour *= colour.rgb;
-                colour.xyz += colour.xyz * directLightColour;
+                    float lightAttenuation = LIGHT_ATTENUATION(fragIn);
+                    float lightIntensity = smoothstep(0, _ShadowSmoothness, diffuseLight * lightAttenuation);
+                    lightIntensity += (1 - _ShadowStrength);
+                    lightIntensity = saturate(lightIntensity);
+                    // work around to not be as bright until I learn read up on proper lighting/ambient light lol
+                    colour *= lightIntensity / 2;
 
-                // hsv stuff
-                float hsvMask = tex2D(_HSVMask, fragIn.uv);
-                float4 rgbNew = ApplyHSVChangesToRGB(colour, float3(_HueShift, _SaturationValue, _ColourValue));
-                colour = lerp(colour, rgbNew, hsvMask);
+                    // add light probes
+                    float3 lightProbe = ShadeSH9(float4(worldNormal, 1));
+                    lightProbe *= lightIntensity;
+                    colour.xyz += colour * lightProbe;
+
+                    // apply direction light
+                    float3  directLightColour = _LightColor0.rgb;
+                    directLightColour *= lightIntensity;
+                    directLightColour *= colour.rgb;
+                    colour.xyz += colour.xyz * directLightColour;
+
+                    // hsv stuff
+                    float hsvMask = tex2D(_HSVMask, fragIn.uv);
+                    float4 rgbNew = ApplyHSVChangesToRGB(colour, float3(_HueShift, _SaturationValue - 1, _ColourValue - 1));
+                    colour = lerp(colour, rgbNew, hsvMask);
+                }
                 
                 // wireframe
                 // _EnableWireframe is declared in the GeometryFunction.cginc because I use it there too
@@ -150,6 +171,7 @@
         Pass
         {
             Tags { "LightMode" = "ShadowCaster" }
+            Name "Sayi Toon ShadowCaster"
 
             CGPROGRAM
             #pragma vertex Vertex
