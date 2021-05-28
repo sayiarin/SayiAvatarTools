@@ -24,8 +24,9 @@
         [HDR]_OutlineColour("Outline Colour", Color) = (0, 0, 0, 0)
         [Space]
         [Toggle]_EnableWireframe("Enable Wireframe", int) = 0
-        _WireframeWidth("Wireframe Width", Range(0, 5)) = 0.1
+        _WireframeWidth("Wireframe Width", Range(0, 10)) = 2
         [HDR]_WireframeColour("Wireframe Colour", Color) = (1, 1, 1, 1)
+        _WireframeFadeOutDistance("Wireframe Fade Out Distance", Range(0, 10)) = 1
         [Space]
         _HueShift("HueShift", Range(-1, 1)) = 0
         _SaturationValue("Saturation", Range(0, 20)) = 1
@@ -56,10 +57,11 @@
             #pragma fragment Fragment
             #pragma multi_compile_fwdbase
 
-            #define _USES_LIGHTING
+            #define _NEEDS_LIGHTING_DATA
             #define _USES_GEOMETRY
             #define _NEEDS_VERTEX_NORMAL
             #define _RECEIVES_SHADOWS
+            #define _NEEDS_WORLD_POSITION
 
             #include "UnityCG.cginc"
             #include "Lighting.cginc"
@@ -78,9 +80,6 @@
             // lighting and shadows
             uniform float _ShadowSmoothness;
             uniform float _ShadowStrength;
-
-            // Wireframe
-            uniform int _EnableWireframe;
 
             // hsv
             uniform float _HueShift;
@@ -120,6 +119,7 @@
                 colour = lerp(colour, rgbNew, hsvMask);
                 
                 // wireframe
+                // _EnableWireframe is declared in the GeometryFunction.cginc because I use it there too
                 if(_EnableWireframe == 1)
                 {
                     colour = ApplyWireframeColour(colour, fragIn, worldNormal);

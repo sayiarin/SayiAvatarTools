@@ -1,5 +1,7 @@
 #include "DataStructures.cginc"
 
+uniform int _EnableWireframe;
+
 float3 DistanceToCenter(float4 vertex1, float4 vertex2, float4 vertex3)
 {
     float2 screenSpacePos1 = _ScreenParams.xy * vertex1.xy / vertex1.w;
@@ -22,22 +24,32 @@ float3 DistanceToCenter(float4 vertex1, float4 vertex2, float4 vertex3)
 [maxvertexcount(3)]
 void GeometryFunction(triangle Interpolators interpolators[3], inout TriangleStream<Interpolators> triangleStream)
 {
-    float3 edgeDistance = DistanceToCenter(interpolators[0].pos, interpolators[1].pos, interpolators[2].pos);
+    if (_EnableWireframe == 1)
+    {
+        float3 edgeDistance = DistanceToCenter(interpolators[0].pos, interpolators[1].pos, interpolators[2].pos);
 
-    Interpolators output;
+        Interpolators output;
 
-    // first vertex
-    output = interpolators[0];
-    output.edgeDistance = float3(edgeDistance.x, 0, 0);
-    triangleStream.Append(output);
+        // first vertex
+        output = interpolators[0];
+        output.edgeDistance = float3(edgeDistance.x, 0, 0);
+        triangleStream.Append(output);
     
-    // second vertex
-    output = interpolators[1];
-    output.edgeDistance = float3(0, edgeDistance.y, 0);
-    triangleStream.Append(output);
+        // second vertex
+        output = interpolators[1];
+        output.edgeDistance = float3(0, edgeDistance.y, 0);
+        triangleStream.Append(output);
     
-    // third vertex
-    output = interpolators[2];
-    output.edgeDistance = float3(0, 0, edgeDistance.z);
-    triangleStream.Append(output);
+        // third vertex
+        output = interpolators[2];
+        output.edgeDistance = float3(0, 0, edgeDistance.z);
+        triangleStream.Append(output);
+    }
+    else
+    {
+        // since no geometry feature is enabled we can just pass out data through here
+        triangleStream.Append(interpolators[0]);
+        triangleStream.Append(interpolators[1]);
+        triangleStream.Append(interpolators[2]);
+    }
 }

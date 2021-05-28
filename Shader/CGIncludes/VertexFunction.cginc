@@ -6,6 +6,10 @@ Interpolators VertexFunction(MeshData meshData)
 	output.pos = UnityObjectToClipPos(meshData.vertex);
 	output.uv = meshData.uv;
 
+	#ifdef _NEEDS_WORLD_POSITION
+		output.worldPosition = mul(unity_ObjectToWorld, meshData.vertex);
+	#endif
+
 	// grabby grab 
 	#ifdef _NEEDS_GRAB_UV
 		output.grabUV = ComputeGrabScreenPos(output.pos);
@@ -13,7 +17,7 @@ Interpolators VertexFunction(MeshData meshData)
 
 	// convert normals to world normals because that's where light comes from
 	// and we want to use them for shadows
-	#ifdef _USES_LIGHTING
+	#ifdef _NEEDS_LIGHTING_DATA
 		output.worldNormal = UnityObjectToWorldNormal(meshData.normal);
 		TRANSFER_VERTEX_TO_FRAGMENT(output);
  	#endif

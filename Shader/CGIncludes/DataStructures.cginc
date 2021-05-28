@@ -9,7 +9,7 @@ struct MeshData
     float4 vertex: POSITION;
     float2 uv: TEXCOORD0;
 
-    #ifdef _USES_LIGHTING
+    #ifdef _NEEDS_LIGHTING_DATA
         float3 normal: NORMAL0;
     #endif
 };
@@ -17,14 +17,20 @@ struct MeshData
 // Interpolators getting passed around
 struct Interpolators
 {
+    // sadly I have to call it pos because that's the only variable name
+    // the unity lighting macro seems to accept :<
     float4 pos: SV_POSITION;
     float2 uv: TEXCOORD0;
+
+    #ifdef _NEEDS_WORLD_POSITION
+        float4 worldPosition: TEXCOORD6;
+    #endif
 
     #ifdef _NEEDS_GRAB_UV
         float4 grabUV: TEXCOORD1;
     #endif
 
-    #ifdef _USES_LIGHTING
+    #ifdef _NEEDS_LIGHTING_DATA
         float3 worldNormal: NORMAL0;
         LIGHTING_COORDS(4, 5)
     #endif
