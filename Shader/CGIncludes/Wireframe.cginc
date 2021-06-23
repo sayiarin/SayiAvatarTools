@@ -1,5 +1,3 @@
-// wirey frame
-
 uniform float4 _WireframeColour;
 uniform float _WireframeWidth;
 uniform float _WireframeFadeOutDistance;

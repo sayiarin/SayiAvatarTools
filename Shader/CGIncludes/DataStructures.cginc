@@ -9,7 +9,7 @@ struct MeshData
     float4 vertex: POSITION;
     float2 uv: TEXCOORD0;
 
-    #ifdef _NEEDS_LIGHTING_DATA
+    #ifdef _NEEDS_NORMAL
         float3 normal: NORMAL0;
     #endif
 };
@@ -26,12 +26,19 @@ struct Interpolators
         float4 worldPosition: TEXCOORD6;
     #endif
 
+    #ifdef _NEEDS_VIEW_DIRECTION
+        float3 viewDirection: TEXCOORD7;
+    #endif
+
     #ifdef _NEEDS_GRAB_UV
         float4 grabUV: TEXCOORD1;
     #endif
 
-    #ifdef _NEEDS_LIGHTING_DATA
+    #ifdef _NEEDS_NORMAL
         float3 worldNormal: NORMAL0;
+    #endif
+
+    #ifdef _NEEDS_LIGHTING_DATA
         LIGHTING_COORDS(4, 5)
     #endif
 
