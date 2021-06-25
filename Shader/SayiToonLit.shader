@@ -18,6 +18,8 @@
         [Header(Lighting Settings)]
         _ShadowStrength("Strength", Range(0, 1)) = 0.5
         _ShadowSmoothness("Smoothness", Range(0, 1)) = 0.05
+        [Toggle]_EnableShadowRamp("Enable Shadow Ramp", int) = 0
+        _ShadowRamp("Shadow Ramp", 2D) = "white" {}
         [Space]
         [Header(Reflections)]
         _ReflectionMap("Reflection Map", 2D) = "black" {}

@@ -16,6 +16,8 @@ uniform float _OverallBrightness;
 #ifdef _LIT
 uniform float _ShadowSmoothness;
 uniform float _ShadowStrength;
+uniform int _EnableShadowRamp;
+uniform sampler2D _ShadowRamp;
 #endif
 
 // fake lighting and shadows, only on unlit version
@@ -61,13 +63,23 @@ float4 Fragment (Interpolators fragIn) : SV_TARGET
     // only relevant for lit shader, unlit ignores world lighting
     #ifdef _LIT
     // shadow wooo
-    float diffuseLight = saturate(dot(_WorldSpaceLightPos0, worldNormal));
 
-    float lightAttenuation = LIGHT_ATTENUATION(fragIn) / SHADOW_ATTENUATION(fragIn);
-    float lightIntensity = smoothstep(0, _ShadowSmoothness, diffuseLight * lightAttenuation);
-    // work around to not be as bright until I learn read up on proper lighting/ambient light lol
-    lightIntensity += (1 - _ShadowStrength);
-    colour *= lightIntensity / 2;
+    if(_EnableShadowRamp)
+    {
+        float lightDirection = saturate(dot(worldNormal, normalize(_WorldSpaceLightPos0)) + 1) / 2;
+        float4 shadowColour = tex2D(_ShadowRamp, float2(lightDirection, 0));
+        colour *= saturate(shadowColour + (1 - _ShadowStrength));
+    }
+    else
+    {
+        float lightDirection = saturate(dot(worldNormal, normalize(_WorldSpaceLightPos0)));
+        float lightAttenuation = LIGHT_ATTENUATION(fragIn) / SHADOW_ATTENUATION(fragIn);
+        float lightIntensity = smoothstep(0, _ShadowSmoothness, lightDirection * lightAttenuation);
+
+        // properly not the best way but it works, so mh
+        lightIntensity += (1 - _ShadowStrength);
+        colour *= lightIntensity / 2;
+    }
 
     // apply direction light
     float3  directLightColour = _LightColor0.rgb;
@@ -78,9 +90,9 @@ float4 Fragment (Interpolators fragIn) : SV_TARGET
     #ifndef _LIT
     if(_EnableFakeShadows)
     {
-        float ShadowRampPosition = (dot(fragIn.worldNormal, normalize(_FakeLightDirection)) + 1) / 2;
-        float4 FakeShadowColour = tex2D(_FakeShadowRamp, float2(ShadowRampPosition, 0));
-        colour *= saturate(FakeShadowColour + (1 - _FakeShadowStrength));
+        float shadowRampPosition = (dot(fragIn.worldNormal, normalize(_FakeLightDirection)) + 1) / 2;
+        float4 fakeShadowColour = tex2D(_FakeShadowRamp, float2(shadowRampPosition, 0));
+        colour *= saturate(fakeShadowColour + (1 - _FakeShadowStrength));
     }
     #endif
                    
