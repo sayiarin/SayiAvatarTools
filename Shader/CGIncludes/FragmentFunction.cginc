@@ -3,15 +3,27 @@
 #include "Reflection.cginc"
 
 // texture variables
+#ifdef _SIMPLE
+uniform sampler2D _MainTex;
+#else
 uniform UNITY_DECLARE_TEX2DARRAY(_BaseTextures);
 uniform int _TextureIndex;
+#endif
 
 uniform float _OverallBrightness;
 
+// directional lighting and shadows
 #ifdef _LIT
-// lighting and shadows
 uniform float _ShadowSmoothness;
 uniform float _ShadowStrength;
+#endif
+
+// fake lighting and shadows, only on unlit version
+#ifndef _LIT
+uniform int _EnableFakeShadows;
+uniform float _FakeShadowStrength;
+uniform float4 _FakeLightDirection;
+uniform sampler2D _FakeShadowRamp;
 #endif
 
 // reflection
@@ -34,26 +46,42 @@ uniform float _GlowSpeed;
 
 float4 Fragment (Interpolators fragIn) : SV_TARGET
 {
+    float4 colour;
+    #ifdef _SIMPLE
+    colour = tex2D(_MainTex, fragIn.uv);
+    #else
     // get currently active texture from array as colour that will be output at the end
-    float4 colour = UNITY_SAMPLE_TEX2DARRAY(_BaseTextures, float3(fragIn.uv, _TextureIndex));
+    colour = UNITY_SAMPLE_TEX2DARRAY(_BaseTextures, float3(fragIn.uv, _TextureIndex));
+    #endif
+
     colour *= _OverallBrightness;
 
     float3 worldNormal = normalize(fragIn.worldNormal);
 
     // only relevant for lit shader, unlit ignores world lighting
     #ifdef _LIT
-        // shadow wooo
-        float diffuseLight = saturate(dot(_WorldSpaceLightPos0, worldNormal));
+    // shadow wooo
+    float diffuseLight = saturate(dot(_WorldSpaceLightPos0, worldNormal));
 
-        float lightAttenuation = LIGHT_ATTENUATION(fragIn) / SHADOW_ATTENUATION(fragIn);
-        float lightIntensity = smoothstep(0, _ShadowSmoothness, diffuseLight * lightAttenuation);
-        // work around to not be as bright until I learn read up on proper lighting/ambient light lol
-        lightIntensity += (1 - _ShadowStrength);
-        colour *= lightIntensity / 2;
+    float lightAttenuation = LIGHT_ATTENUATION(fragIn) / SHADOW_ATTENUATION(fragIn);
+    float lightIntensity = smoothstep(0, _ShadowSmoothness, diffuseLight * lightAttenuation);
+    // work around to not be as bright until I learn read up on proper lighting/ambient light lol
+    lightIntensity += (1 - _ShadowStrength);
+    colour *= lightIntensity / 2;
 
-        // apply direction light
-        float3  directLightColour = _LightColor0.rgb;
-        colour.xyz *= directLightColour;
+    // apply direction light
+    float3  directLightColour = _LightColor0.rgb;
+    colour.xyz *= directLightColour;
+    #endif
+
+    // only unlit has fake shadows
+    #ifndef _LIT
+    if(_EnableFakeShadows)
+    {
+        float ShadowRampPosition = (dot(fragIn.worldNormal, normalize(_FakeLightDirection)) + 1) / 2;
+        float4 FakeShadowColour = tex2D(_FakeShadowRamp, float2(ShadowRampPosition, 0));
+        colour *= saturate(FakeShadowColour + (1 - _FakeShadowStrength));
+    }
     #endif
                    
     // hsv stuff

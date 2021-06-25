@@ -21,7 +21,7 @@ Interpolators VertexFunction(MeshData meshData)
 
 	// convert normals to world normals because that's where light comes from
 	// and we want to use them for shadows
-	#ifdef _NEEDS_NORMAL
+	#ifdef _NEEDS_WORLD_NORMAL
 		output.worldNormal = UnityObjectToWorldNormal(meshData.normal);
 	#endif
 

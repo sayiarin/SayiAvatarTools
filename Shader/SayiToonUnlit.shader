@@ -21,21 +21,32 @@
         _Smoothness("Smoothness", Range(0, 1)) = 0
         _Reflectiveness("Reflectiveness", Range(0, 1)) = 0
         [Space]
+        [Header(Lighting)]
+        [Header(Fake Shadows)]
+        [Toggle]_EnableFakeShadows("Enable Fake Shadows", int) = 0
+        _FakeShadowStrength("Shadow Strength", Range(0, 1)) = 0.5
+        _FakeLightDirection("Fake Light Direction", Vector) = (0, 0, 0, 0)
+        _FakeShadowRamp("Gradient Texture", 2D) = "white" {}
+        [Space]
         [Header(Special Effects)]
+        [Header(Outline)]
         [Toggle]_EnableOutline("Enable Outline", int) = 0
         _OutlineWidth("Outline Width", Range(0, 0.01)) = 0
         [HDR]_OutlineColour("Outline Colour", Color) = (0, 0, 0, 0)
         [Space]
+        [Header(Wireframe)]
         [Toggle]_EnableWireframe("Enable Wireframe", int) = 0
         _WireframeWidth("Wireframe Width", Range(0, 10)) = 2
         [HDR]_WireframeColour("Wireframe Colour", Color) = (1, 1, 1, 1)
         _WireframeFadeOutDistance("Wireframe Fade Out Distance", Range(0, 10)) = 1
         [Space]
+        [Header(HueShift)]
         _HueShift("HueShift", Range(0, 1)) = 0
         _SaturationValue("Saturation", Range(0, 20)) = 1
         _ColourValue("Value", Range(0, 20)) = 1
         _HSVMask("HSV Mask", 2D) = "white" {}
         [Space]
+        [Header(Glow)]
         [Toggle]_EnableGlow("Enable Glow", int) = 0
         _GlowTexture("Glow Texture", 2D) = "black" {}
         _GlowIntensity("Glow Intensity", Range(1, 100)) = 10
@@ -69,7 +80,7 @@
             #define _USES_GEOMETRY
             #define _NEEDS_VERTEX_NORMAL
             #define _NEEDS_WORLD_POSITION
-            #define _NEEDS_NORMAL
+            #define _NEEDS_WORLD_NORMAL
             #define _NEEDS_VIEW_DIRECTION
 
             #include "UnityCG.cginc"

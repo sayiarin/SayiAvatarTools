@@ -9,7 +9,7 @@ struct MeshData
     float4 vertex: POSITION;
     float2 uv: TEXCOORD0;
 
-    #ifdef _NEEDS_NORMAL
+    #ifdef _NEEDS_WORLD_NORMAL
         float3 normal: NORMAL0;
     #endif
 };
@@ -34,7 +34,7 @@ struct Interpolators
         float4 grabUV: TEXCOORD1;
     #endif
 
-    #ifdef _NEEDS_NORMAL
+    #ifdef _NEEDS_WORLD_NORMAL
         float3 worldNormal: NORMAL0;
     #endif
 
