@@ -6,7 +6,7 @@
         // we will keep this stuff around so we can make the fallback diffuse shader look 
         // decent enough for people that don't have the shader shown
         [Header(Settings for the Fallback shader)]
-        _MainTex ("Fallback Texture", 2D) = "white" {}
+        _MainTex ("Main Texture", 2D) = "white" {}
         _Glossiness ("Smoothness", Float) = 0 
         _Metallic ("Metallic", Range(0, 1)) = 0.0
         _OverallBrightness("Overall Brightness", Range(0, 2)) = 1
