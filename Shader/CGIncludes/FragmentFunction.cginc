@@ -14,6 +14,7 @@ uniform float _OverallBrightness;
 
 // directional lighting and shadows
 #ifdef _LIT
+uniform int _EnableDirectionalShadow;
 uniform float _ShadowSmoothness;
 uniform float _ShadowStrength;
 uniform int _EnableShadowRamp;
@@ -68,27 +69,34 @@ float4 Fragment (Interpolators fragIn) : SV_TARGET
     // only relevant for lit shader, unlit ignores world lighting
     #ifdef _LIT
     // shadow wooo
-
-    if(_EnableShadowRamp)
+    
+    float lightAttenuation = LIGHT_ATTENUATION(fragIn) / SHADOW_ATTENUATION(fragIn);
+    
+    if(_EnableDirectionalShadow)
     {
-        float lightDirection = saturate(dot(worldNormal, normalize(_WorldSpaceLightPos0)) + 1) / 2;
-        float4 shadowColour = tex2D(_ShadowRamp, float2(lightDirection, 0));
-        colour *= saturate(shadowColour + (1 - _ShadowStrength));
-    }
-    else
-    {
-        float lightDirection = saturate(dot(worldNormal, normalize(_WorldSpaceLightPos0)));
-        float lightAttenuation = LIGHT_ATTENUATION(fragIn) / SHADOW_ATTENUATION(fragIn);
-        float lightIntensity = smoothstep(0, _ShadowSmoothness, lightDirection * lightAttenuation);
+        if(_EnableShadowRamp)
+        {
+            float lightDirection = saturate(dot(worldNormal, normalize(_WorldSpaceLightPos0)) + 1) / 2;
+            float4 shadowColour = tex2D(_ShadowRamp, float2(lightDirection, 0));
+            colour *= saturate(shadowColour + (1 - _ShadowStrength));
+        }
+        else
+        {
+            float lightDirection = saturate(dot(worldNormal, normalize(_WorldSpaceLightPos0)));
+            float lightIntensity = smoothstep(0, _ShadowSmoothness, lightDirection * lightAttenuation);
 
-        // properly not the best way but it works, so mh
-        lightIntensity += (1 - _ShadowStrength);
-        colour *= lightIntensity / 2;
+            // properly not the best way but it works, so mh
+            lightIntensity += (1 - _ShadowStrength);
+            colour *= lightIntensity / 2;
+        }
     }
 
-    // apply direction light
-    float3  directLightColour = _LightColor0.rgb;
-    colour.xyz *= directLightColour;
+    // apply directional light and lightprobe data
+    // to get a flat lighting effect we set the normal direction to (0, 1, 0) so that every face 
+    // gets lit up the same as if it were facing upwards
+    float3 lightProbeShading = ShadeSH9(float4(float3(0, 1, 0), 1.0));
+    float3 lightShading = lightProbeShading + _LightColor0.rgb * lightAttenuation;
+    colour.xyz *= lightShading;
     #endif
 
     // only unlit has fake shadows
@@ -100,7 +108,7 @@ float4 Fragment (Interpolators fragIn) : SV_TARGET
         colour *= saturate(fakeShadowColour + (1 - _FakeShadowStrength));
     }
     #endif
-                   
+
     // hsv stuff
     float hsvMask = tex2D(_HSVMask, fragIn.uv);
     float4 rgbNew = ApplyHSVChangesToRGB(colour, float3(_HueShift, _SaturationValue - 1, _ColourValue - 1));

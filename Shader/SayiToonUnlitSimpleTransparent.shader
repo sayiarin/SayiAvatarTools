@@ -1,4 +1,4 @@
-﻿Shader "Sayiarin/SayiToon Simple Unlit"
+﻿Shader "Sayiarin/SayiToon Simple Unlit - Transparent"
 {
     Properties
     {
@@ -35,6 +35,7 @@
         _WireframeWidth("Wireframe Width", Range(0, 10)) = 2
         [HDR]_WireframeColour("Wireframe Colour", Color) = (1, 1, 1, 1)
         _WireframeFadeOutDistance("Wireframe Fade Out Distance", Range(0, 10)) = 1
+        [Toggle] _MainColourAlphaAffectsWireframe("Wireframe Affected by Main Texture Alpha", int) = 1
         [Space]
         [Header(HueShift)]
         _HueShift("HueShift", Range(0, 1)) = 0
@@ -58,14 +59,16 @@
         {
             Tags
             {
-                "RenderType" = "Opaque"
+                "RenderType" = "Transparent"
+                "Queue" = "Transparent"
                 "LightMode" = "ForwardBase"
                 "PassFlags" = "OnlyDirectional"
             }
             Name "Sayi Toon Base"
             
             Cull Off
-            ZWrite On
+            ZWrite Off
+            Blend SrcAlpha OneMinusSrcAlpha
 
             CGPROGRAM
             #pragma vertex VertexFunction
@@ -80,6 +83,7 @@
             #define _NEEDS_VIEW_DIRECTION
 
             #define _SIMPLE
+            #define _TRANSPARENT
 
             #include "UnityCG.cginc"
             // need to include Lighting.ginc for reflection probes
@@ -103,22 +107,22 @@
             CGPROGRAM
             #pragma vertex Vertex
             #pragma fragment Fragment
-
+        
             #include "CGIncludes/Outline.cginc"
             ENDCG
         }
-
+        
         Pass
         {
             Tags { "LightMode" = "ShadowCaster" }
             Name "Sayi Toon ShadowCaster"
-
+        
             CGPROGRAM
             #pragma vertex Vertex
             #pragma fragment Fragment
             #pragma multi_compile_shadowcaster
             #include "UnityCG.cginc"
-
+        
             #include "CGIncludes/ShadowCaster.cginc"
             ENDCG
         }

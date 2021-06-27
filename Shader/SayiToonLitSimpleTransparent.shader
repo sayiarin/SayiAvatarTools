@@ -1,4 +1,4 @@
-﻿Shader "Sayiarin/SayiToon Unlit - Transparent"
+﻿Shader "Sayiarin/SayiToon Simple Lit - Transparent"
 {
     Properties
     {
@@ -6,23 +6,23 @@
         // we will keep this stuff around so we can make the fallback diffuse shader look 
         // decent enough for people that don't have the shader shown
         [Header(Settings for the Fallback shader)]
-        _MainTex ("Main Texture", 2D) = "white" {}
-        _OverallBrightness("Overall Brightness", Range(0, 2)) = 1
+        _MainTex ("Fallback Texture", 2D) = "white" {}
         _Glossiness ("Smoothness", Float) = 0 
         _Metallic ("Metallic", Range(0, 1)) = 0.0
+        _OverallBrightness("Overall Brightness", Range(0, 2)) = 1
+        [Space]
+        [Header(Lighting Settings)]
+        [Toggle]_EnableDirectionalShadow("Enable Directional Light Shadows", int) = 0
+        _ShadowStrength("Strength", Range(0, 1)) = 0.5
+        _ShadowSmoothness("Smoothness", Range(0, 1)) = 0.05
+        [Toggle]_EnableShadowRamp("Enable Shadow Ramp", int) = 0
+        _ShadowRamp("Shadow Ramp", 2D) = "white" {}
         [Space]
         [Header(Reflections)]
         _ReflectionMap("Reflection Map", 2D) = "black" {}
         // purposefully choosing variable names different from default as to not make fallback look awkward
         _Smoothness("Smoothness", Range(0, 1)) = 0
         _Reflectiveness("Reflectiveness", Range(0, 1)) = 0
-        [Space]
-        [Header(Lighting)]
-        [Header(Fake Shadows)]
-        [Toggle]_EnableFakeShadows("Enable Fake Shadows", int) = 0
-        _FakeShadowStrength("Shadow Strength", Range(0, 1)) = 0.5
-        _FakeLightDirection("Fake Light Direction", Vector) = (0, 0, 0, 0)
-        _FakeShadowRamp("Gradient Texture", 2D) = "white" {}
         [Space]
         [Header(Special Effects)]
         [Header(Outline)]
@@ -35,7 +35,6 @@
         _WireframeWidth("Wireframe Width", Range(0, 10)) = 2
         [HDR]_WireframeColour("Wireframe Colour", Color) = (1, 1, 1, 1)
         _WireframeFadeOutDistance("Wireframe Fade Out Distance", Range(0, 10)) = 1
-        [Toggle] _MainColourAlphaAffectsWireframe("Wireframe Affected by Main Texture Alpha", int) = 1
         [Space]
         [Header(HueShift)]
         _HueShift("HueShift", Range(0, 1)) = 0
@@ -75,19 +74,22 @@
             #pragma geometry GeometryFunction
             #pragma fragment Fragment
             #pragma multi_compile_fwdbase
-            
+
+            #define _NEEDS_WORLD_NORMAL
+            #define _NEEDS_LIGHTING_DATA
             #define _USES_GEOMETRY
             #define _NEEDS_VERTEX_NORMAL
-            #define _NEEDS_WORLD_POSITION
-            #define _NEEDS_WORLD_NORMAL
             #define _NEEDS_VIEW_DIRECTION
+            #define _RECEIVES_SHADOWS
+            #define _NEEDS_WORLD_POSITION
 
+            #define _LIT
             #define _SIMPLE
-            #define _TRANSPARENT
 
             #include "UnityCG.cginc"
-            // need to include Lighting.ginc for reflection probes
             #include "Lighting.cginc"
+            #include "UnityLightingCommon.cginc"
+            #include "AutoLight.cginc"
 
             #include "CGIncludes/VertexFunction.cginc"
             #include "CGIncludes/GeometryFunction.cginc"
@@ -107,22 +109,22 @@
             CGPROGRAM
             #pragma vertex Vertex
             #pragma fragment Fragment
-        
+
             #include "CGIncludes/Outline.cginc"
             ENDCG
         }
-        
+
         Pass
         {
             Tags { "LightMode" = "ShadowCaster" }
             Name "Sayi Toon ShadowCaster"
-        
+
             CGPROGRAM
             #pragma vertex Vertex
             #pragma fragment Fragment
             #pragma multi_compile_shadowcaster
             #include "UnityCG.cginc"
-        
+
             #include "CGIncludes/ShadowCaster.cginc"
             ENDCG
         }

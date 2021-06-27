@@ -16,6 +16,7 @@
         _OverallBrightness("Overall Brightness", Range(0, 2)) = 1
         [Space]
         [Header(Lighting Settings)]
+        [Toggle]_EnableDirectionalShadow("Enable Directional Light Shadows", int) = 0
         _ShadowStrength("Strength", Range(0, 1)) = 0.5
         _ShadowSmoothness("Smoothness", Range(0, 1)) = 0.05
         [Toggle]_EnableShadowRamp("Enable Shadow Ramp", int) = 0
@@ -83,6 +84,7 @@
             #define _NEEDS_VIEW_DIRECTION
             #define _RECEIVES_SHADOWS
             #define _NEEDS_WORLD_POSITION
+
             #define _LIT
 
             #include "UnityCG.cginc"
