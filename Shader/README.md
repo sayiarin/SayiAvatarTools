@@ -15,12 +15,7 @@ It uses HDR Colours so you can make it glow in worlds with Bloom enabled in the 
 A relatively simple Toon Shader I made to learn more about shaders in general and to have more control over how my VRC Avatar looks.
 
 ## Features:
-See this short video for a showcase of what it looks like:
-<figure class="video_container">
-    <video controls="true" allowfullscreen="true">
-        <source src="../Examples/sayitoon-showcase.webm", type="video/webm">
-    </video>
-</figure>
+To see a short video preview of this shader, please have a look into the Examples folder and open the sayitoon-showcase.webm file.
 
 ### Variants:
 There is an Unlit and a Lit variant of the shader. Both also have a simplified variant that instead of a texture array takes in only one main texture.
