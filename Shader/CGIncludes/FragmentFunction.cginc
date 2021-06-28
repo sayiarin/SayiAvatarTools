@@ -47,15 +47,13 @@ float4 Fragment (Interpolators fragIn) : SV_TARGET
     #endif
 
     colour *= _OverallBrightness;
-
-    float3 worldNormal = normalize(fragIn.worldNormal);
-
-    colour.rgb = ApplyLighting(fragIn, colour);
-
     // hsv stuff
     float hsvMask = tex2D(_HSVMask, fragIn.uv);
     float4 rgbNew = ApplyHSVChangesToRGB(colour, float3(_HueShift, _SaturationValue - 1, _ColourValue - 1));
     colour = lerp(colour, rgbNew, hsvMask);
+
+    // apply lighting
+    colour.rgb = ApplyLighting(fragIn, colour);
 
     // reflection using red channel
     float4 reflectionMap = tex2D(_ReflectionMap, fragIn.uv);
@@ -68,10 +66,10 @@ float4 Fragment (Interpolators fragIn) : SV_TARGET
     if(_EnableWireframe == 1)
     {
         #ifdef _TRANSPARENT
-            float4 wireframeColour = ApplyWireframeColour(colour, fragIn, worldNormal);
+            float4 wireframeColour = ApplyWireframeColour(colour, fragIn, fragIn.worldNormal);
             colour = lerp(wireframeColour, wireframeColour * colour.a, _MainColourAlphaAffectsWireframe);
         #else
-            colour = ApplyWireframeColour(colour, fragIn, worldNormal);
+            colour = ApplyWireframeColour(colour, fragIn, fragIn.worldNormal);
         #endif
     }
 
