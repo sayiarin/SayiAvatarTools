@@ -1,6 +1,7 @@
 #include "ColourUtilities.cginc"
 #include "Wireframe.cginc"
 #include "Reflection.cginc"
+#include "LightUtilities.cginc"
 
 // texture variables
 #ifdef _SIMPLE
@@ -11,23 +12,6 @@ uniform int _TextureIndex;
 #endif
 
 uniform float _OverallBrightness;
-
-// directional lighting and shadows
-#ifdef _LIT
-uniform int _EnableDirectionalShadow;
-uniform float _ShadowSmoothness;
-uniform float _ShadowStrength;
-uniform int _EnableShadowRamp;
-uniform sampler2D _ShadowRamp;
-#endif
-
-// fake lighting and shadows, only on unlit version
-#ifndef _LIT
-uniform int _EnableFakeShadows;
-uniform float _FakeShadowStrength;
-uniform float4 _FakeLightDirection;
-uniform sampler2D _FakeShadowRamp;
-#endif
 
 // reflection
 uniform sampler2D _ReflectionMap;
@@ -56,58 +40,17 @@ float4 Fragment (Interpolators fragIn) : SV_TARGET
 {
     float4 colour;
     #ifdef _SIMPLE
-    colour = tex2D(_MainTex, fragIn.uv);
+        colour = tex2D(_MainTex, fragIn.uv);
     #else
-    // get currently active texture from array as colour that will be output at the end
-    colour = UNITY_SAMPLE_TEX2DARRAY(_BaseTextures, float3(fragIn.uv, _TextureIndex));
+        // get currently active texture from array as colour that will be output at the end
+        colour = UNITY_SAMPLE_TEX2DARRAY(_BaseTextures, float3(fragIn.uv, _TextureIndex));
     #endif
 
     colour *= _OverallBrightness;
 
     float3 worldNormal = normalize(fragIn.worldNormal);
 
-    // only relevant for lit shader, unlit ignores world lighting
-    #ifdef _LIT
-    // shadow wooo
-    
-    float lightAttenuation = LIGHT_ATTENUATION(fragIn) / SHADOW_ATTENUATION(fragIn);
-    
-    if(_EnableDirectionalShadow)
-    {
-        if(_EnableShadowRamp)
-        {
-            float lightDirection = saturate(dot(worldNormal, normalize(_WorldSpaceLightPos0)) + 1) / 2;
-            float4 shadowColour = tex2D(_ShadowRamp, float2(lightDirection, 0));
-            colour *= saturate(shadowColour + (1 - _ShadowStrength));
-        }
-        else
-        {
-            float lightDirection = saturate(dot(worldNormal, normalize(_WorldSpaceLightPos0)));
-            float lightIntensity = smoothstep(0, _ShadowSmoothness, lightDirection * lightAttenuation);
-
-            // properly not the best way but it works, so mh
-            lightIntensity += (1 - _ShadowStrength);
-            colour *= lightIntensity / 2;
-        }
-    }
-
-    // apply directional light and lightprobe data
-    // to get a flat lighting effect we set the normal direction to (0, 1, 0) so that every face 
-    // gets lit up the same as if it were facing upwards
-    float3 lightProbeShading = ShadeSH9(float4(float3(0, 1, 0), 1.0));
-    float3 lightShading = lightProbeShading + _LightColor0.rgb * lightAttenuation;
-    colour.xyz *= lightShading;
-    #endif
-
-    // only unlit has fake shadows
-    #ifndef _LIT
-    if(_EnableFakeShadows)
-    {
-        float shadowRampPosition = (dot(fragIn.worldNormal, normalize(_FakeLightDirection)) + 1) / 2;
-        float4 fakeShadowColour = tex2D(_FakeShadowRamp, float2(shadowRampPosition, 0));
-        colour *= saturate(fakeShadowColour + (1 - _FakeShadowStrength));
-    }
-    #endif
+    colour.rgb = ApplyLighting(fragIn, colour);
 
     // hsv stuff
     float hsvMask = tex2D(_HSVMask, fragIn.uv);
@@ -125,10 +68,10 @@ float4 Fragment (Interpolators fragIn) : SV_TARGET
     if(_EnableWireframe == 1)
     {
         #ifdef _TRANSPARENT
-        float4 wireframeColour = ApplyWireframeColour(colour, fragIn, worldNormal);
-        colour = lerp(wireframeColour, wireframeColour * colour.a, _MainColourAlphaAffectsWireframe);
+            float4 wireframeColour = ApplyWireframeColour(colour, fragIn, worldNormal);
+            colour = lerp(wireframeColour, wireframeColour * colour.a, _MainColourAlphaAffectsWireframe);
         #else
-        colour = ApplyWireframeColour(colour, fragIn, worldNormal);
+            colour = ApplyWireframeColour(colour, fragIn, worldNormal);
         #endif
     }
 

@@ -86,7 +86,7 @@
             #include "UnityCG.cginc"
             // need to include Lighting.ginc for reflection probes
             #include "Lighting.cginc"
-
+            
             #include "CGIncludes/VertexFunction.cginc"
             #include "CGIncludes/GeometryFunction.cginc"
             #include "CGIncludes/FragmentFunction.cginc"
