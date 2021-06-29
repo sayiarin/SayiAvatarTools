@@ -1,7 +1,5 @@
 #include "DataStructures.cginc"
 
-uniform int _EnableWireframe;
-
 float3 DistanceToCenter(float4 vertex1, float4 vertex2, float4 vertex3)
 {
     float2 screenSpacePos1 = _ScreenParams.xy * vertex1.xy / vertex1.w;

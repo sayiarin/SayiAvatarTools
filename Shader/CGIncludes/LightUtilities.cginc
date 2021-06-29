@@ -1,20 +1,3 @@
-#ifdef _LIT
-// Upgrade NOTE: excluded shader from DX11, OpenGL ES 2.0 because it uses unsized arrays
-#pragma exclude_renderers d3d11 gles
-uniform int _EnableDirectionalShadow;
-uniform float _ShadowSmoothness;
-uniform float _ShadowStrength;
-uniform int _EnableShadowRamp;
-uniform sampler2D _ShadowRamp;
-
-// fake lighting and shadows, only on unlit version
-#else
-uniform int _EnableFakeShadows;
-uniform float _FakeShadowStrength;
-uniform float4 _FakeLightDirection;
-uniform sampler2D _FakeShadowRamp;
-#endif
-
 // for some weird reason I have to #ifdef everywhere otherwise my unlit shader variants have compile errors
 // not quite sure yet what's going on there, I'll figure it out eventually when I learn how to make proper shader variants I guess
 #ifdef _LIT
@@ -80,30 +63,42 @@ float3 CalculateVertexLightsWithToonShading(float3 worldNormal, float3 worldPosi
 float3 ApplyLighting(Interpolators fragIn, float4 colour)
 {
     #ifdef _LIT
-        // calculate actual lighting
-        float lightAttenuation = LIGHT_ATTENUATION(fragIn) / SHADOW_ATTENUATION(fragIn);
+        float3 lightColour = _LightColor0.rgb;
+
+        // different attenuation calculation for ForwardAdd Pass
+        #ifdef UNITY_PASS_FORWARDADD
+        UNITY_LIGHT_ATTENUATION(lightAttenuation, fragIn, fragIn.worldPosition.xyz);
+        lightColour *= lightAttenuation;
+
+        // apply the following only in base pass
+        #else
+            // calculate actual lighting
+            float lightAttenuation = LIGHT_ATTENUATION(fragIn) / SHADOW_ATTENUATION(fragIn);
     
-        if(_EnableDirectionalShadow)
-        {
-            colour *= GetCelShadedLightIntensity(fragIn.worldNormal, _WorldSpaceLightPos0);
-        }
+            if(_EnableDirectionalShadow)
+            {
+                colour *= GetCelShadedLightIntensity(fragIn.worldNormal, _WorldSpaceLightPos0);
+            }
 
-        // apply directional light, lightprobes and vertex lights
-        float3 lightProbeColour = ShadeSH9(float4(float3(0, 1, 0), 1.0));
-        float3 lightColour = lightProbeColour + _LightColor0.rgb * lightAttenuation;
+            // apply directional light, lightprobes and vertex lights
+            float3 lightProbeColour = ShadeSH9(float4(float3(0, 1, 0), 1.0));
+            lightColour += lightProbeColour;
 
-        lightColour += CalculateVertexLightsWithToonShading(fragIn.worldNormal, fragIn.worldPosition);
+            lightColour += CalculateVertexLightsWithToonShading(fragIn.worldNormal, fragIn.worldPosition);
+        #endif
 
         colour.rgb *= lightColour;
         return colour.rgb;
     #else
-        // calculate fake shadows if necessary on UNLIT variants
-        if(_EnableFakeShadows)
-        {
-            float shadowRampPosition = (dot(fragIn.worldNormal, normalize(_FakeLightDirection)) + 1) / 2;
-            float4 fakeShadowColour = tex2D(_FakeShadowRamp, float2(shadowRampPosition, 0));
-            colour *= saturate(fakeShadowColour + (1 - _FakeShadowStrength));
-        }
-        return colour.rgb;
+        #ifndef UNITY_PASS_FORWARDADD
+            // calculate fake shadows if necessary on UNLIT variants
+            if(_EnableFakeShadows)
+            {
+                float shadowRampPosition = (dot(fragIn.worldNormal, normalize(_FakeLightDirection)) + 1) / 2;
+                float4 fakeShadowColour = tex2D(_FakeShadowRamp, float2(shadowRampPosition, 0));
+                colour *= saturate(fakeShadowColour + (1 - _FakeShadowStrength));
+            }
+            return colour.rgb;
+        #endif
     #endif
 }

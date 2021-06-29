@@ -48,6 +48,8 @@
         _GlowIntensity("Glow Intensity", Range(1, 100)) = 10
         [Toggle]_EnableGlowColourChange("Enable Colour Change Over Time", int) = 0
         _GlowSpeed("Glow Colour Change Speed", Range(0.1, 60)) = 1
+        [Space]
+        [Enum(Off, 0, Front, 1, Back, 2)] _CullMode("Culling Mode", int) = 2
     }
 
     SubShader
@@ -60,17 +62,16 @@
             {
                 "RenderType" = "Opaque"
                 "LightMode" = "ForwardBase"
-                "PassFlags" = "OnlyDirectional"
             }
             Name "Sayi Toon Base"
             
-            Cull Off
+            Cull[_CullMode]
             ZWrite On
 
             CGPROGRAM
             #pragma vertex VertexFunction
             #pragma geometry GeometryFunction
-            #pragma fragment Fragment
+            #pragma fragment FragmentFunction
             #pragma multi_compile_fwdbase
             
             #define _USES_GEOMETRY
@@ -84,6 +85,8 @@
             #include "UnityCG.cginc"
             // need to include Lighting.ginc for reflection probes
             #include "Lighting.cginc"
+
+            #include "CGIncludes/Properties.cginc"
 
             #include "CGIncludes/VertexFunction.cginc"
             #include "CGIncludes/GeometryFunction.cginc"

@@ -3,40 +3,7 @@
 #include "Reflection.cginc"
 #include "LightUtilities.cginc"
 
-// texture variables
-#ifdef _SIMPLE
-uniform sampler2D _MainTex;
-#else
-uniform UNITY_DECLARE_TEX2DARRAY(_BaseTextures);
-uniform int _TextureIndex;
-#endif
-
-uniform float _OverallBrightness;
-
-// reflection
-uniform sampler2D _ReflectionMap;
-uniform float _Reflectiveness;
-
-// hsv
-uniform float _HueShift;
-uniform float _SaturationValue;
-uniform float _ColourValue;
-uniform sampler2D _HSVMask;
-
-// glow
-uniform int _EnableGlow;
-uniform int _EnableGlowColourChange;
-uniform sampler2D _GlowTexture;
-uniform float _GlowIntensity;
-uniform float _GlowSpeed;
-
-// wireframe - only relevant for transparent shader
-#ifdef _TRANSPARENT
-uniform int _MainColourAlphaAffectsWireframe;
-#endif
-
-
-float4 Fragment (Interpolators fragIn) : SV_TARGET
+float4 FragmentFunction (Interpolators fragIn) : SV_TARGET
 {
     float4 colour;
     #ifdef _SIMPLE
@@ -55,33 +22,36 @@ float4 Fragment (Interpolators fragIn) : SV_TARGET
     // apply lighting
     colour.rgb = ApplyLighting(fragIn, colour);
 
-    // reflection using red channel
-    float4 reflectionMap = tex2D(_ReflectionMap, fragIn.uv);
-    float3 reflectionValue = GetReflection(fragIn);
-    reflectionValue = lerp(colour.rgb, reflectionValue, _Reflectiveness);
-    colour.rgb = lerp(colour.rgb, reflectionValue, reflectionMap.r);
-                
-    // wireframe
-    // _EnableWireframe is declared in the GeometryFunction.cginc because I use it there too
-    if(_EnableWireframe == 1)
-    {
-        #ifdef _TRANSPARENT
-            float4 wireframeColour = ApplyWireframeColour(colour, fragIn, fragIn.worldNormal);
-            colour = lerp(wireframeColour, wireframeColour * colour.a, _MainColourAlphaAffectsWireframe);
-        #else
-            colour = ApplyWireframeColour(colour, fragIn, fragIn.worldNormal);
-        #endif
-    }
 
-    // glowwy
-    float4 glowColour = float4(0, 0, 0, 0);
-    if(_EnableGlow)
-    {
-        glowColour = tex2D(_GlowTexture, fragIn.uv);
-        float glowHueShift = lerp(0, (_Time.y / _GlowSpeed), _EnableGlowColourChange);
-        glowColour = ApplyHSVChangesToRGB(glowColour, float3(glowHueShift, 0, _GlowIntensity));
-    }
-    colour = lerp(colour, glowColour, glowColour.a);
+    #ifndef UNITY_PASS_FORWARDADD
+        // reflection using red channel
+        float4 reflectionMap = tex2D(_ReflectionMap, fragIn.uv);
+        float3 reflectionValue = GetReflection(fragIn);
+        reflectionValue = lerp(colour.rgb, reflectionValue, _Reflectiveness);
+        colour.rgb = lerp(colour.rgb, reflectionValue, reflectionMap.r);
+                
+        // wireframe
+        // _EnableWireframe is declared in the GeometryFunction.cginc because I use it there too
+        if(_EnableWireframe == 1)
+        {
+            #ifdef _TRANSPARENT
+                float4 wireframeColour = ApplyWireframeColour(colour, fragIn, fragIn.worldNormal);
+                colour = lerp(wireframeColour, wireframeColour * colour.a, _MainColourAlphaAffectsWireframe);
+            #else
+                colour = ApplyWireframeColour(colour, fragIn, fragIn.worldNormal);
+            #endif
+        }
+
+        // glowwy
+        float4 glowColour = float4(0, 0, 0, 0);
+        if(_EnableGlow)
+        {
+            glowColour = tex2D(_GlowTexture, fragIn.uv);
+            float glowHueShift = lerp(0, (_Time.y / _GlowSpeed), _EnableGlowColourChange);
+            glowColour = ApplyHSVChangesToRGB(glowColour, float3(glowHueShift, 0, _GlowIntensity));
+        }
+        colour = lerp(colour, glowColour, glowColour.a);
+    #endif
 
     return colour;
 }

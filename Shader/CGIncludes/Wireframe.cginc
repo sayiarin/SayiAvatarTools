@@ -1,7 +1,4 @@
-uniform float4 _WireframeColour;
-uniform float _WireframeWidth;
-uniform float _WireframeFadeOutDistance;
-
+#ifndef UNITY_PASS_FORWARDADD
 float4 ApplyWireframeColour(float4 colour, Interpolators interpolators, float3 normal)
 {
     float3 distance = interpolators.edgeDistance;
@@ -28,3 +25,4 @@ float4 ApplyWireframeColour(float4 colour, Interpolators interpolators, float3 n
 
     return colour;
 }
+#endif

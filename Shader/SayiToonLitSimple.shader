@@ -48,6 +48,8 @@
         _GlowIntensity("Glow Intensity", Range(1, 100)) = 10
         [Toggle]_EnableGlowColourChange("Enable Colour Change Over Time", int) = 0
         _GlowSpeed("Glow Colour Change Speed", Range(0.1, 60)) = 1
+        [Space]
+        [Enum(Off, 0, Front, 1, Back, 2)] _CullMode("Culling Mode", int) = 2
     }
 
     SubShader
@@ -60,17 +62,16 @@
             {
                 "RenderType" = "Opaque"
                 "LightMode" = "ForwardBase"
-                "PassFlags" = "OnlyDirectional"
             }
             Name "Sayi Toon Base"
             
-            Cull Off
+            Cull[_CullMode]
             ZWrite On
 
             CGPROGRAM
             #pragma vertex VertexFunction
             #pragma geometry GeometryFunction
-            #pragma fragment Fragment
+            #pragma fragment FragmentFunction
             #pragma multi_compile_fwdbase
 
             #define _NEEDS_WORLD_NORMAL
@@ -89,8 +90,46 @@
             #include "UnityLightingCommon.cginc"
             #include "AutoLight.cginc"
 
+            #include "CGIncludes/Properties.cginc"
+
             #include "CGIncludes/VertexFunction.cginc"
             #include "CGIncludes/GeometryFunction.cginc"
+            #include "CGIncludes/FragmentFunction.cginc"
+            ENDCG
+        }
+
+        Pass
+        {
+            Tags
+            {
+                "LightMode" = "ForwardAdd"
+            }
+            Name "Sayi Toon Add"
+            
+            Cull[_CullMode]
+            ZWrite Off
+            Blend One One
+
+            CGPROGRAM
+            #pragma vertex VertexFunction
+            #pragma fragment FragmentFunction
+            #pragma multi_compile_fwdadd_fullshadows
+
+            #define _NEEDS_WORLD_NORMAL
+            #define _NEEDS_VERTEX_NORMAL
+            #define _NEEDS_WORLD_POSITION
+            
+            #define _LIT
+            #define _SIMPLE
+            
+            #include "UnityCG.cginc"
+            #include "Lighting.cginc"
+            #include "UnityLightingCommon.cginc"
+            #include "AutoLight.cginc"
+            
+            #include "CGIncludes/Properties.cginc"
+            
+            #include "CGIncludes/VertexFunction.cginc"
             #include "CGIncludes/FragmentFunction.cginc"
             ENDCG
         }
