@@ -1,18 +1,18 @@
 // for some weird reason I have to #ifdef everywhere otherwise my unlit shader variants have compile errors
 // not quite sure yet what's going on there, I'll figure it out eventually when I learn how to make proper shader variants I guess
 #ifdef _LIT
-float GetCelShadedLightIntensity(float3 normal, float3 lightPosition)
+float GetCelShadedLightIntensity(float3 normal, float3 lightDirection)
 {
     float lightIntensity = 0.0f;
     if(_EnableShadowRamp)
     {
-        float lightDirection = saturate(dot(normal, normalize(lightPosition)) + 1) / 2;
-        lightIntensity = tex2D(_ShadowRamp, float2(lightDirection, 0));
+        float lightAngle = saturate(dot(normal, lightDirection) + 1) / 2;
+        lightIntensity = tex2D(_ShadowRamp, float2(lightAngle, 0));
     }
     else
     {
-        float lightDirection = saturate(dot(normal, normalize(lightPosition)));
-        lightIntensity = smoothstep(0, _ShadowSmoothness, lightDirection);
+        float lightAngle = saturate(dot(normal, lightDirection));
+        lightIntensity = smoothstep(0, _ShadowSmoothness, lightAngle);
     }
     lightIntensity = saturate(lightIntensity + (1 - _ShadowStrength));
     return lightIntensity;
@@ -52,7 +52,15 @@ float3 CalculateVertexLightsWithToonShading(float3 worldNormal, float3 worldPosi
         // calculate individual colours
         float3 vertexLightColour = unity_LightColor[i] * vertexLightAttenuation[i];
 
-        // shaded without taking shadows into account for now because I'm dumb dumb
+        // calculate shadows for each light if enabled
+        if(_EnableDirectionalShadow)
+        {
+            float3 vertexLightDirection = float3(toLightX[i], toLightY[i], toLightZ[i]);
+            float vertexLightToonIntensity = GetCelShadedLightIntensity(worldNormal, vertexLightDirection);
+            vertexLightColour *= vertexLightToonIntensity;
+        }
+
+        // finally add the vertex light
         finalVertexLightColour += vertexLightColour;
     }
 
@@ -65,26 +73,32 @@ float3 ApplyLighting(Interpolators fragIn, float4 colour)
     #ifdef _LIT
         float3 lightColour = _LightColor0.rgb;
 
-        // different attenuation calculation for ForwardAdd Pass
+        // different add distance based falloff for lightcolour, then continue with shadow calculation
+        // like normal
         #ifdef UNITY_PASS_FORWARDADD
         UNITY_LIGHT_ATTENUATION(lightAttenuation, fragIn, fragIn.worldPosition.xyz);
         lightColour *= lightAttenuation;
+        #endif
 
-        // apply the following only in base pass
-        #else
-            // calculate actual lighting
-            float lightAttenuation = LIGHT_ATTENUATION(fragIn) / SHADOW_ATTENUATION(fragIn);
-    
-            if(_EnableDirectionalShadow)
-            {
-                colour *= GetCelShadedLightIntensity(fragIn.worldNormal, _WorldSpaceLightPos0);
-            }
+        // calculate shadows
+        if(_EnableDirectionalShadow)
+        {
+            float3 lightDirection = _WorldSpaceLightPos0.xyz;
+            // in forward add we have to calculate the direction ourselves, the directional light
+            // in the base pass will already have a direction in _WorldSpaceLightPos0
+            #ifdef UNITY_PASS_FORWARDADD
+            lightDirection = UnityWorldSpaceLightDir(fragIn.worldPosition);
+            #endif
 
-            // apply directional light, lightprobes and vertex lights
-            float3 lightProbeColour = ShadeSH9(float4(float3(0, 1, 0), 1.0));
-            lightColour += lightProbeColour;
+            colour *= GetCelShadedLightIntensity(fragIn.worldNormal, normalize(lightDirection));
+        }
 
-            lightColour += CalculateVertexLightsWithToonShading(fragIn.worldNormal, fragIn.worldPosition);
+        // apply directional light, lightprobes and vertex lights
+        #ifndef UNITY_PASS_FORWARDADD
+        float3 lightProbeColour = ShadeSH9(float4(float3(0, 1, 0), 1.0));
+        lightColour += lightProbeColour;
+
+        lightColour += CalculateVertexLightsWithToonShading(fragIn.worldNormal, fragIn.worldPosition);
         #endif
 
         colour.rgb *= lightColour;
