@@ -31,8 +31,8 @@ Shader "Sayiarin/ThreeColourGradient"
 			#pragma fragment Fragment
 
 			#include "UnityCG.cginc"
-			#include "CGIncludes/DataStructures.cginc"
-			#include "CGIncludes/VertexFunction.cginc"
+			#include "../CGIncludes/DataStructures.cginc"
+			#include "../CGIncludes/VertexFunction.cginc"
 
 			uniform float4 _FirstColour;
 			uniform float4 _SecondColour;

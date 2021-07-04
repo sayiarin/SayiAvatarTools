@@ -19,16 +19,30 @@ uniform int _TextureIndex;
 
 uniform float _OverallBrightness;
 
-// reflection
-uniform sampler2D _ReflectionMap;
+// Material Features, Mask uses rgb channels for different settings
+// r - reflection/smoothness
+// g - specular highlights
+// b - height map
+uniform sampler2D _MaterialFeatureMask;
 uniform float _Reflectiveness;
 uniform float _Smoothness;
+uniform float _SpecularHighlightStrength;
+
+// special feature map, using rgb channels for different settings
+// r - HSV changes
+// g - Wireframe
+// b - "psychadelic" Effect
+uniform sampler2D _SpecialFeatureMask;
 
 // hsv
 uniform float _HueShift;
 uniform float _SaturationValue;
 uniform float _ColourValue;
-uniform sampler2D _HSVMask;
+
+// "psychadelic" Effect
+uniform int _EnablePsychedelicEffect;
+uniform float _PsychedelicSpeed;
+uniform float _PsychedelicWaveSize;
 
 // lighting variables
 #ifdef _LIT

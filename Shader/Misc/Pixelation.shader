@@ -28,7 +28,7 @@
 			#define _NEEDS_GRAB_UV
 
 			#include "UnityCG.cginc"
-			#include "CGIncludes/VertexFunction.cginc"
+			#include "../CGIncludes/VertexFunction.cginc"
 
 			float _PixelSizeX;
 			float _PixelSizeY;

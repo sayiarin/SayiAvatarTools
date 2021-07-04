@@ -27,12 +27,27 @@ The normal variants of the shader take a Texture Array and an index as parameter
 
 A Fallback Texture can be added to have a decent looking avatar for people that don't have your shader shown.
 
+The simple variants are basically the same except they only take in one single texture instead of texture arrays.
+
 ### Shading
 Lit Variants are always affected by Lightprobes, but the shading is flat. Shadows from Directional Light can be enabled. The shader also allows you to use a shadow ramp texture for directional light shadows.
 
 Unlit Variants can have fake shadows using a shadow ramp and a vector to set the direction of the fake light.
 
 An example of what a shadow ramp looks like can be found in the Examples folder of this repository.
+
+### Material and Feature Masks
+To apply certain effects of the shader only to specific parts you have the ability to provide Textures that will map different colour channels to different features.
+
+#### Material Feauture Mask:
+* Red Channel = Reflection/Smoothness
+* Green Channel = Specular Highlights (not yet supported)
+* Blue Channel = Height Map (not yet supported)
+
+#### Special Effects Feature Mask
+* Red Channel = HSV changes
+* Green Channel = Wireframe
+* Blue Channel = "psychadelic" Effect
 
 ### Reflections
 A Black and White texture can be supplied to the shader as a reflection map. The higher the value the stronger the effect, meaning you can have gray values between completely black or completely white to change how much a specific area is affected by the Smoothness and Reflectiveness settings.

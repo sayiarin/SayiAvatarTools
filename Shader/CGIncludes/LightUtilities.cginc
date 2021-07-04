@@ -68,7 +68,7 @@ float3 CalculateVertexLightsWithToonShading(float3 worldNormal, float3 worldPosi
 }
 #endif
 
-float3 ApplyLighting(Interpolators fragIn, float4 colour)
+float3 CalculatedLightColour(Interpolators fragIn)
 {
     #ifdef _LIT
         float3 lightColour = _LightColor0.rgb;
@@ -90,7 +90,7 @@ float3 ApplyLighting(Interpolators fragIn, float4 colour)
             lightDirection = UnityWorldSpaceLightDir(fragIn.worldPosition);
             #endif
 
-            colour *= GetCelShadedLightIntensity(fragIn.worldNormal, normalize(lightDirection));
+            lightColour *= GetCelShadedLightIntensity(fragIn.worldNormal, normalize(lightDirection));
         }
 
         // apply directional light, lightprobes and vertex lights
@@ -101,18 +101,34 @@ float3 ApplyLighting(Interpolators fragIn, float4 colour)
         lightColour += CalculateVertexLightsWithToonShading(fragIn.worldNormal, fragIn.worldPosition);
         #endif
 
-        colour.rgb *= lightColour;
-        return colour.rgb;
+        return lightColour;
     #else
         #ifndef UNITY_PASS_FORWARDADD
+            float3 lightColour = float3(1, 1, 1);
             // calculate fake shadows if necessary on UNLIT variants
             if(_EnableFakeShadows)
             {
                 float shadowRampPosition = (dot(fragIn.worldNormal, normalize(_FakeLightDirection)) + 1) / 2;
                 float4 fakeShadowColour = tex2D(_FakeShadowRamp, float2(shadowRampPosition, 0));
-                colour *= saturate(fakeShadowColour + (1 - _FakeShadowStrength));
+                lightColour *= saturate(fakeShadowColour + (1 - _FakeShadowStrength));
             }
-            return colour.rgb;
+            return lightColour;
         #endif
     #endif
+}
+
+// correcting light Colour by normalizing only if any of the vectors values are above 1
+// this is important because this way we'll keep all attenuation calculated before
+// while at the same time keeping the lightColour at a normalized level in order to not
+// make the avatar light up too brightly
+float3 CorrectedLightColour(Interpolators fragIn)
+{
+    float3 lightColour = CalculatedLightColour(fragIn);
+
+    if(lightColour.x > 1 || lightColour.y > 1 || lightColour.z > 1)
+    {
+        lightColour = normalize(lightColour);
+    }
+
+    return lightColour;
 }
