@@ -17,6 +17,7 @@
         // purposefully choosing variable names different from default as to not make fallback look awkward
         _Smoothness("Smoothness", Range(0, 1)) = 0
         _Reflectiveness("Reflectiveness", Range(0, 1)) = 0
+        _SpecularHighlightExponent("Specular Highlight Exponent", Range(0.001, 2)) = .5
         [Space]
         [Header(Lighting)]
         [Header(Fake Shadows)]

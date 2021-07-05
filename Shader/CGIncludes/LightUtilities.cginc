@@ -132,3 +132,26 @@ float3 CorrectedLightColour(Interpolators fragIn)
 
     return lightColour;
 }
+
+float3 SpecularLight(float3 vertexNormal, float3 viewDirection, float4 colour)
+{
+    float3 lightPosition;
+    // fake light as white for unlit variants
+    float3 lightColour = float3(1, 1, 1);
+    #ifdef _LIT
+        lightPosition = _WorldSpaceLightPos0;
+        lightColour = _LightColor0.rgb;
+    #else
+        lightPosition = _FakeLightDirection;
+    #endif
+
+    float3 lambert = saturate(dot(vertexNormal, lightPosition));
+    float3 halfVector = normalize((lightPosition + viewDirection));
+    float3 specularLight = saturate(dot(halfVector, vertexNormal)) * (lambert > 0);
+    float specularExponent = exp2(_SpecularHighlightExponent * 11) + 2;
+    specularLight = pow(specularLight, specularExponent);
+    specularLight *= lightColour;
+    // after having the light colour we add it to the base colour to get the final specular colour
+    specularLight += colour.rgb;
+    return specularLight;
+}

@@ -8,10 +8,10 @@ Interpolators VertexFunction(MeshData meshData)
 
 	#ifdef _NEEDS_WORLD_POSITION
 		output.worldPosition = mul(unity_ObjectToWorld, meshData.vertex);
-	#endif
 
-	#ifdef _NEEDS_VIEW_DIRECTION
-		output.viewDirection = normalize(output.worldPosition - _WorldSpaceCameraPos.xyz);
+		#ifdef _NEEDS_VIEW_DIRECTION
+			output.viewDirection = normalize(_WorldSpaceCameraPos.xyz - output.worldPosition);
+		#endif
 	#endif
 
 	// grabby grab 

@@ -24,6 +24,7 @@
         // purposefully choosing variable names different from default as to not make fallback look awkward
         _Smoothness("Smoothness", Range(0, 1)) = 0
         _Reflectiveness("Reflectiveness", Range(0, 1)) = 0
+        _SpecularHighlightExponent("Specular Highlight Exponent", Range(0.001, 2)) = .5
         [Space]
         [Header(Special Effects)]
         _SpecialFeatureMask("Special Effects Feature Mask", 2D) = "white" {}
@@ -128,6 +129,7 @@
             #define _NEEDS_WORLD_NORMAL
             #define _NEEDS_VERTEX_NORMAL
             #define _NEEDS_WORLD_POSITION
+            #define _NEEDS_VIEW_DIRECTION
             
             #define _LIT
             #define _SIMPLE

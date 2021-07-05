@@ -13,8 +13,8 @@ float4 FragmentFunction (Interpolators fragIn) : SV_TARGET
         colour = UNITY_SAMPLE_TEX2DARRAY(_BaseTextures, float3(fragIn.uv, _TextureIndex));
     #endif
 
-
     float3 specialEffectsFeatureMask = tex2D(_SpecialFeatureMask, fragIn.uv);
+    float3 materialFeatureMask = tex2D(_MaterialFeatureMask, fragIn.uv);
     
     // hsv stuff, using red channel of feature mask
     float4 rgbNew = ApplyHSVChangesToRGB(colour, float3(_HueShift, _SaturationValue - 1, _ColourValue - 1));
@@ -23,9 +23,11 @@ float4 FragmentFunction (Interpolators fragIn) : SV_TARGET
     // apply lighting
     colour.rgb *= CorrectedLightColour(fragIn);
 
+    // specular highlights, using blinn phong
+    float3 specularLight = SpecularLight(fragIn.vertexNormal, fragIn.viewDirection, colour);
+    colour.rgb = lerp(colour.rgb, specularLight, materialFeatureMask.g);
 
-    #ifndef UNITY_PASS_FORWARDADD
-        float3 materialFeatureMask = tex2D(_MaterialFeatureMask, fragIn.uv);
+    #ifdef UNITY_PASS_FORWARDBASE
 
         // reflection using red channel
         float3 reflectionValue = GetReflection(fragIn);
@@ -41,10 +43,8 @@ float4 FragmentFunction (Interpolators fragIn) : SV_TARGET
             glowColour = ApplyHSVChangesToRGB(glowColour, float3(glowHueShift, 0, _GlowIntensity));
         }
         colour = lerp(colour, glowColour, glowColour.a);
-                
+
         // wireframe
-        // _EnableWireframe is declared in the GeometryFunction.cginc because I use it there too
-        // also take materialFeatureMask green channel into account for wireframe alpha
         if(_EnableWireframe == 1 && specialEffectsFeatureMask.g > 0.0f)
         {
             #ifdef _TRANSPARENT

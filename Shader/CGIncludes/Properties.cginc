@@ -26,7 +26,7 @@ uniform float _OverallBrightness;
 uniform sampler2D _MaterialFeatureMask;
 uniform float _Reflectiveness;
 uniform float _Smoothness;
-uniform float _SpecularHighlightStrength;
+uniform float _SpecularHighlightExponent;
 
 // special feature map, using rgb channels for different settings
 // r - HSV changes
