@@ -28,7 +28,7 @@ namespace SayiTools
             EditorGUIHelper.HeaderLevel1("Texture Array Manager");
 
             EditorGUILayout.PropertyField(serializedTexture2D, includeChildren: true);
-            EditorGUIHelper.Separator();            
+            EditorGUIHelper.Separator();
 
             EditorGUILayout.PropertyField(serializedTexture2DArray);
             EditorGUILayout.HelpBox(string.Format(textureArrayInfoMessage, GetTexture2DArrayAssetName()), MessageType.Info);
@@ -93,6 +93,11 @@ namespace SayiTools
             if (textures.Length == 0)
             {
                 return false;
+            }
+
+            if (textures.Length == 1)
+            {
+                return textures[0];
             }
 
             for (int i = 1; i < textures.Length; i++)

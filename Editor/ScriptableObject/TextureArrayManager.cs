@@ -6,6 +6,6 @@ namespace SayiTools
     public class TextureArrayManager : ScriptableObject
     {
         public Texture2DArray textureArray;
-        public Texture2D[] textures;
+        public Texture2D[] textures = new Texture2D[] { };
     }
 }
