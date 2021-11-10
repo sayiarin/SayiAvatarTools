@@ -42,7 +42,7 @@ namespace SayiTools
             // we get the values that we need directly from the object itself because getting the
             // values from the serialised properties
             TextureArrayManager textureArrayManager = serializedObject.targetObject as TextureArrayManager;
-            bool texturesAreValid = TexturesShareDimensionsAndFormat(textureArrayManager.textures);
+            bool texturesAreValid = TextureHelper.TexturesShareDimensionsAndFormat(textureArrayManager.textures);
 
             if (!texturesAreValid)
             {
@@ -86,31 +86,6 @@ namespace SayiTools
         private string GetTexture2DArrayAssetName()
         {
             return string.Format("{0}_{1}", textureArrayAssetNamePrefix, target.name);
-        }
-
-        public static bool TexturesShareDimensionsAndFormat(Texture2D[] textures)
-        {
-            if (textures.Length == 0)
-            {
-                return false;
-            }
-
-            if (textures.Length == 1)
-            {
-                return textures[0];
-            }
-
-            for (int i = 1; i < textures.Length; i++)
-            {
-                if (!textures[i]
-                    || (textures[i].width != textures[0].width)
-                    || (textures[i].height != textures[0].height)
-                    || (textures[i].format != textures[0].format))
-                {
-                    return false;
-                }
-            }
-            return true;
         }
 
         public static Texture2DArray CreateTexture2DArray(Texture2D[] textures)

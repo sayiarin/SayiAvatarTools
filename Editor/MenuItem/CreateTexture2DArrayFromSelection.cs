@@ -11,7 +11,7 @@ namespace SayiTools
         {
             Texture2D[] textures = Selection.GetFiltered<Texture2D>(SelectionMode.TopLevel);
             Array.Sort(textures, (UnityEngine.Object one, UnityEngine.Object two) => one.name.CompareTo(two.name));
-            bool selectionIsValid = TextureArrayManagerEditor.TexturesShareDimensionsAndFormat(textures);
+            bool selectionIsValid = TextureHelper.TexturesShareDimensionsAndFormat(textures);
 
             if (selectionIsValid == false)
             {
