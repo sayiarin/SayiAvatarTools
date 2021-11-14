@@ -55,7 +55,7 @@ namespace SayiTools
             }
 
             List<string> nonReadableFiles = new List<string>();
-            foreach ( Texture2D texture in Textures)
+            foreach (Texture2D texture in Textures)
             {
                 if (!texture.isReadable)
                 {
@@ -66,6 +66,15 @@ namespace SayiTools
             if (nonReadableFiles.Count != 0)
             {
                 EditorGUILayout.HelpBox(String.Format("The following images are not readable, please change the import settings of the Textures to 'Read/Write Enabled':\n{0}", String.Join(", ", nonReadableFiles)), MessageType.Error);
+                if (GUILayout.Button("Auto Fix"))
+                {
+                    foreach (Texture2D texture in Textures)
+                    {
+                        TextureImporter texImporter = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(texture));
+                        texImporter.isReadable = true;
+                        texImporter.SaveAndReimport();
+                    }
+                }
             }
 
             GUILayout.Space(EditorGUIUtility.singleLineHeight);
