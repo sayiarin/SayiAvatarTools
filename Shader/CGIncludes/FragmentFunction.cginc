@@ -13,8 +13,11 @@ float4 FragmentFunction (Interpolators fragIn) : SV_TARGET
         colour = UNITY_SAMPLE_TEX2DARRAY(_BaseTextures, float3(fragIn.uv, _TextureIndex));
     #endif
 
-    float3 specialEffectsFeatureMask = tex2D(_SpecialFeatureMask, fragIn.uv);
+    float4 specialEffectsFeatureMask = tex2D(_SpecialFeatureMask, fragIn.uv);
     float3 materialFeatureMask = tex2D(_MaterialFeatureMask, fragIn.uv);
+
+    // colour inverion is just 1 - colour
+    colour.rgb = lerp(colour.rgb, 1 - colour.rgb, _InvertColours * specialEffectsFeatureMask.a);
     
     // hsv stuff, using red channel of feature mask
     float4 rgbNew = ApplyHSVChangesToRGB(colour, float3(_HueShift, _SaturationValue - 1, _ColourValue - 1));
@@ -28,7 +31,6 @@ float4 FragmentFunction (Interpolators fragIn) : SV_TARGET
     colour.rgb = lerp(colour.rgb, specularLight, materialFeatureMask.g);
 
     #ifdef UNITY_PASS_FORWARDBASE
-
         // reflection using red channel
         float3 reflectionValue = GetReflection(fragIn);
         reflectionValue = lerp(colour.rgb, reflectionValue, _Reflectiveness);
@@ -64,9 +66,11 @@ float4 FragmentFunction (Interpolators fragIn) : SV_TARGET
             psychedelicColour = ApplyHSVChangesToRGB(psychedelicColour, float3(_Time.y / _PsychedelicSpeed, 0, 0));
             colour = lerp(colour, psychedelicColour, specialEffectsFeatureMask.b);
         }
+
+        // colour inversion
     #endif
 
     colour *= _OverallBrightness;
-
+    
     return colour;
 }

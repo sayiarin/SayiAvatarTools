@@ -32,6 +32,7 @@ uniform float _SpecularHighlightExponent;
 // r - HSV changes
 // g - Wireframe
 // b - "psychadelic" Effect
+// a - colour inversion
 uniform sampler2D _SpecialFeatureMask;
 
 // hsv
@@ -43,6 +44,9 @@ uniform float _ColourValue;
 uniform int _EnablePsychedelicEffect;
 uniform float _PsychedelicSpeed;
 uniform float _PsychedelicWaveSize;
+
+// invert colours
+uniform int _InvertColours;
 
 // lighting variables
 #ifdef _LIT

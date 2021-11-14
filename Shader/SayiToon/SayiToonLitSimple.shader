@@ -57,6 +57,8 @@
         _PsychedelicSpeed("Colour Change Speed", Range(0.01, 60)) = 5
         _PsychedelicWaveSize("Wave Size", Range(0.01, 100)) = 10
         [Space]
+        [Toggle]_InvertColours("Invert Colours", int) = 0
+        [Space]
         [Enum(Off, 0, Front, 1, Back, 2)] _CullMode("Culling Mode", int) = 2
     }
 
