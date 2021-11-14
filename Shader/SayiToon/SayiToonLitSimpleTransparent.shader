@@ -64,13 +64,13 @@
     SubShader
     {
         LOD 200
+        Tags { "Queue" = "Transparent" }
 
         Pass
         {
             Tags
             {
                 "RenderType" = "Transparent"
-                "Queue" = "Transparent"
                 "LightMode" = "ForwardBase"
                 "PassFlags" = "OnlyDirectional"
             }
