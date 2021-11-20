@@ -3,8 +3,11 @@ using UnityEditor;
 
 namespace SayiTools
 {
+
     public class EditorGUIHelper : Editor
     {
+        public const string ProgressTitle = "Sayi Avatar Tools";
+
         public static void HeaderLevel1(string headerText)
         {
             Header(headerText, 18, Color.cyan);

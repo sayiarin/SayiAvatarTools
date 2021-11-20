@@ -99,7 +99,10 @@ namespace SayiTools
 
         private void CombineAndSaveImage()
         {
+            EditorUtility.DisplayProgressBar(EditorGUIHelper.ProgressTitle, "Combining Images ...", 0f);
+
             Texture2D combinedTexture = new Texture2D(Textures[0].width, Textures[0].height);
+            bool canceled = false;
 
             for (int y = 0; y < Textures[0].width; y++)
             {
@@ -112,12 +115,24 @@ namespace SayiTools
                     Color combinedColor = new Color(redChannel, greenChannel, blueChannel, alphaChannel);
                     combinedTexture.SetPixel(x, y, combinedColor);
                 }
+                if (EditorUtility.DisplayCancelableProgressBar(EditorGUIHelper.ProgressTitle, "Combining Images ...", (float)y / (float)Textures[0].width))
+                {
+                    canceled = true;
+                    break;
+                }
             }
 
-            combinedTexture.Apply();
-            byte[] bytes = combinedTexture.EncodeToPNG();
-            File.WriteAllBytes(GetOutputPath(), bytes);
-            AssetDatabase.Refresh();
+            if (!canceled)
+            {
+                EditorUtility.DisplayProgressBar(EditorGUIHelper.ProgressTitle, "Saving image and updating database", 1f);
+
+                combinedTexture.Apply();
+                byte[] bytes = combinedTexture.EncodeToPNG();
+                File.WriteAllBytes(GetOutputPath(), bytes);
+                AssetDatabase.Refresh();
+
+            }
+            EditorUtility.ClearProgressBar();
         }
 
         private float SampleAverageScalarFromTexture(Texture2D texture, int x, int y)
