@@ -47,7 +47,8 @@ To apply certain effects of the shader only to specific parts you have the abili
 #### Special Effects Feature Mask
 * Red Channel = HSV changes
 * Green Channel = Wireframe
-* Blue Channel = "psychadelic" Effect
+* Blue Channel = Rainbow Effect
+* Alpha Channel = Colour Inversion
 
 ### Reflections
 A Black and White texture can be supplied to the shader as a reflection map. The higher the value the stronger the effect, meaning you can have gray values between completely black or completely white to change how much a specific area is affected by the Smoothness and Reflectiveness settings.
@@ -68,10 +69,12 @@ Hue, Saturation and Value (Intensity) of your texture can be changed with a few 
 ### Glow Effect
 You can enable a glow effect. Supply a Texture with a transparent background and the parts that you want to glow with colour. These will light up and, if in a world with bloom enabled, glow. There are settings to change the Intensity and enable an automatic colour transition over time.
 
+### Colour Inversion
+Inverts the base colour and applies all other effects afterwards.
+
 ## Planned features:
 Nothing is specifically planned, but I intend to add least the following over time:
 * add Texture Array support for Glow and Reflection Map on the "complex" variants
-* Acid/LSD effect on masked area
 * normal/height map support
 * specularity
 * rimlight
