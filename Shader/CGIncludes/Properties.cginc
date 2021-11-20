@@ -29,10 +29,10 @@ uniform float _Smoothness;
 uniform float _SpecularHighlightExponent;
 
 // special feature map, using rgb channels for different settings
-// r - HSV changes
+// r - HSV Changes
 // g - Wireframe
-// b - "psychadelic" Effect
-// a - colour inversion
+// b - Rainbow Effect
+// a - Colour Inversion
 uniform sampler2D _SpecialFeatureMask;
 
 // hsv
@@ -40,10 +40,10 @@ uniform float _HueShift;
 uniform float _SaturationValue;
 uniform float _ColourValue;
 
-// "psychadelic" Effect
-uniform int _EnablePsychedelicEffect;
-uniform float _PsychedelicSpeed;
-uniform float _PsychedelicWaveSize;
+// Rainbow Effect
+uniform int _EnableRainbowEffect;
+uniform float _RainbowSpeed;
+uniform float _RainbowWaveSize;
 
 // invert colours
 uniform int _InvertColours;

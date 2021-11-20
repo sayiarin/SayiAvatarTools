@@ -57,14 +57,14 @@ float4 FragmentFunction (Interpolators fragIn) : SV_TARGET
             #endif
         }
 
-        // "psychedelic effect" of sorts, I guess
+        // rainbow colour effect
         // for now just a colour change over time based on normal direction, nothing fancy
         // but it looks neat
-        if(_EnablePsychedelicEffect)
+        if(_EnableRainbowEffect)
         {
-            float4 psychedelicColour = float4(sin(normalize(fragIn.worldNormal).xyz * _PsychedelicWaveSize), 1) * 0.5 + 0.5;
-            psychedelicColour = ApplyHSVChangesToRGB(psychedelicColour, float3(_Time.y / _PsychedelicSpeed, 0, 0));
-            colour = lerp(colour, psychedelicColour, specialEffectsFeatureMask.b);
+            float4 rainbowColour = float4(sin(normalize(fragIn.worldNormal).xyz * _RainbowWaveSize), 1) * 0.5 + 0.5;
+            rainbowColour = ApplyHSVChangesToRGB(rainbowColour, float3(_Time.y / _RainbowSpeed, 0, 0));
+            colour = lerp(colour, rainbowColour, specialEffectsFeatureMask.b);
         }
 
         // colour inversion

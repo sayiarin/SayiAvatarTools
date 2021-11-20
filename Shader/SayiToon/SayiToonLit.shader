@@ -54,10 +54,10 @@
         [Toggle]_EnableGlowColourChange("Enable Colour Change Over Time", int) = 0
         _GlowSpeed("Glow Colour Change Speed", Range(0.01, 60)) = 1
         [Space]
-        [Header(Psychedelic Effect)]
-        [Toggle]_EnablePsychedelicEffect("Enable Psychedelic Effect", int) = 0
-        _PsychedelicSpeed("Colour Change Speed", Range(0.01, 60)) = 5
-        _PsychedelicWaveSize("Wave Size", Range(0.01, 100)) = 10
+        [Header(Rainbow Effect)]
+        [Toggle]_EnableRainbowEffect("Enable Rainbow Effect", int) = 0
+        _RainbowSpeed("Colour Change Speed", Range(0.01, 60)) = 5
+        _RainbowWaveSize("Wave Size", Range(0.01, 100)) = 10
         [Space]
         [Toggle]_InvertColours("Invert Colours", int) = 0
         [Space]
