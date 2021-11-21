@@ -6,7 +6,7 @@ namespace SayiTools
 
     public class EditorGUIHelper : Editor
     {
-        public const string ProgressTitle = "Sayi Tools";
+        public const string PROGRESS_TITLE = "Sayi Tools";
 
         public static void HeaderLevel1(string headerText)
         {

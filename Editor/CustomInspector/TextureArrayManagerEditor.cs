@@ -58,33 +58,33 @@ namespace SayiTools
                     return;
                 }
 
-                EditorUtility.DisplayProgressBar(EditorGUIHelper.ProgressTitle, "Creating tex2d array ...", 0f);
+                EditorUtility.DisplayProgressBar(EditorGUIHelper.PROGRESS_TITLE, "Creating tex2d array ...", 0f);
                 Texture2DArray newTexture2DArray = CreateTexture2DArray(textureArrayManager.textures);
                 // overwrite if exists, otherwise create
                 if (textureArrayManager.textureArray)
                 {
-                    EditorUtility.DisplayProgressBar(EditorGUIHelper.ProgressTitle, "Saving assets ...", .5f);
+                    EditorUtility.DisplayProgressBar(EditorGUIHelper.PROGRESS_TITLE, "Saving assets ...", .5f);
                     Texture2DArray existingTexture2DArray = AssetDatabase.LoadAssetAtPath<Texture2DArray>(AssetDatabase.GetAssetPath(textureArrayManager.textureArray));
                     EditorUtility.CopySerialized(newTexture2DArray, existingTexture2DArray);
                     AssetDatabase.SaveAssets();
                 }
                 else
                 {
-                    EditorUtility.DisplayProgressBar(EditorGUIHelper.ProgressTitle, "Saving assets ...", .5f);
+                    EditorUtility.DisplayProgressBar(EditorGUIHelper.PROGRESS_TITLE, "Saving assets ...", .5f);
                     string assetPath = AssetDatabase.GetAssetPath(target);
                     assetPath = assetPath.Remove(assetPath.LastIndexOf('/'));
                     assetPath = string.Format("{0}/{1}.asset", assetPath, GetTexture2DArrayAssetName());
                     AssetDatabase.CreateAsset(newTexture2DArray, assetPath);
                     AssetDatabase.SaveAssets();
 
-                    EditorUtility.DisplayProgressBar(EditorGUIHelper.ProgressTitle, "Updating Database ...", .9f);
+                    EditorUtility.DisplayProgressBar(EditorGUIHelper.PROGRESS_TITLE, "Updating Database ...", .9f);
                     // after saving assign the new asset to this editor, update and save just in case
                     textureArrayManager.textureArray = newTexture2DArray;
                     serializedObject.Update();
                     serializedObject.ApplyModifiedProperties();
 
                 }
-                EditorUtility.DisplayProgressBar(EditorGUIHelper.ProgressTitle, "Completed!", 1f);
+                EditorUtility.DisplayProgressBar(EditorGUIHelper.PROGRESS_TITLE, "Completed!", 1f);
                 EditorUtility.ClearProgressBar();
             }
             EditorGUI.EndDisabledGroup();

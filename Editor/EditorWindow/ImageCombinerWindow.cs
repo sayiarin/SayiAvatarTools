@@ -9,7 +9,8 @@ namespace SayiTools
     public class ImageCombinerWindow : EditorWindow
     {
         private const string FILE_ENDING = "png";
-        private const string ImageInfoMessage = "Combines multiple images into one, using the average colour of a pixel of one image and adding it to the R, G, B, or A channel of the target texture accordingly\nIf no texture is supplied the value will be assumed as 0 (black). Alpha Values in the source images will be discarded.";
+        private const string IMAGE_INFO_MESSAGE = "Combines multiple images into one, using the average colour of a pixel of one image and adding it to the R, G, B, or A channel of the target texture accordingly\nIf no texture is supplied the value will be assumed as 0 (black). Alpha Values in the source images will be discarded.";
+
         private string OutputPath = "Assets";
         private string OutputName = "CombinedImage";
 
@@ -32,7 +33,7 @@ namespace SayiTools
             EditorGUILayout.BeginVertical();
             GUILayout.Space(EditorGUIUtility.singleLineHeight);
             EditorGUIHelper.HeaderLevel2("Image Combiner");
-            EditorGUILayout.HelpBox(ImageInfoMessage, MessageType.Info);
+            EditorGUILayout.HelpBox(IMAGE_INFO_MESSAGE, MessageType.Info);
             GUILayout.Space(EditorGUIUtility.singleLineHeight);
 
             ChannelR = (Texture2D)EditorGUILayout.ObjectField("Red Channel Image", ChannelR, typeof(Texture2D), false);
@@ -99,7 +100,7 @@ namespace SayiTools
 
         private void CombineAndSaveImage()
         {
-            EditorUtility.DisplayProgressBar(EditorGUIHelper.ProgressTitle, "Combining Images ...", 0f);
+            EditorUtility.DisplayProgressBar(EditorGUIHelper.PROGRESS_TITLE, "Combining Images ...", 0f);
 
             Texture2D combinedTexture = new Texture2D(Textures[0].width, Textures[0].height);
             bool canceled = false;
@@ -115,7 +116,7 @@ namespace SayiTools
                     Color combinedColor = new Color(redChannel, greenChannel, blueChannel, alphaChannel);
                     combinedTexture.SetPixel(x, y, combinedColor);
                 }
-                if (EditorUtility.DisplayCancelableProgressBar(EditorGUIHelper.ProgressTitle, "Combining Images ...", (float)y / (float)Textures[0].width))
+                if (EditorUtility.DisplayCancelableProgressBar(EditorGUIHelper.PROGRESS_TITLE, "Combining Images ...", (float)y / (float)Textures[0].width))
                 {
                     canceled = true;
                     break;
@@ -124,7 +125,7 @@ namespace SayiTools
 
             if (!canceled)
             {
-                EditorUtility.DisplayProgressBar(EditorGUIHelper.ProgressTitle, "Saving image and updating database", 1f);
+                EditorUtility.DisplayProgressBar(EditorGUIHelper.PROGRESS_TITLE, "Saving image and updating database", 1f);
 
                 combinedTexture.Apply();
                 byte[] bytes = combinedTexture.EncodeToPNG();
