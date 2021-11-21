@@ -38,34 +38,25 @@ float4 FragmentFunction (Interpolators fragIn) : SV_TARGET
 
         // glowwy
         float4 glowColour = float4(0, 0, 0, 0);
-        if(_EnableGlow)
-        {
-            glowColour = tex2D(_GlowTexture, fragIn.uv);
-            float glowHueShift = lerp(0, (_Time.y / _GlowSpeed), _EnableGlowColourChange);
-            glowColour = ApplyHSVChangesToRGB(glowColour, float3(glowHueShift, 0, _GlowIntensity));
-        }
-        colour = lerp(colour, glowColour, glowColour.a);
+        glowColour = tex2D(_GlowTexture, fragIn.uv);
+        float glowHueShift = lerp(0, (_Time.y / _GlowSpeed), _EnableGlowColourChange);
+        glowColour = ApplyHSVChangesToRGB(glowColour, float3(glowHueShift, 0, _GlowIntensity));
+        colour = lerp(colour, glowColour, glowColour.a * _EnableGlow);
 
         // wireframe
-        if(_EnableWireframe == 1 && specialEffectsFeatureMask.g > 0.0f)
-        {
-            #ifdef _TRANSPARENT
-                float4 wireframeColour = ApplyWireframeColour(colour, fragIn, specialEffectsFeatureMask.g);
-                colour = lerp(wireframeColour, wireframeColour * colour.a, _MainColourAlphaAffectsWireframe);
-            #else
-                colour = ApplyWireframeColour(colour, fragIn, specialEffectsFeatureMask.g);
-            #endif
-        }
+        #ifdef _TRANSPARENT
+            float4 wireframeColour = ApplyWireframeColour(colour, fragIn, specialEffectsFeatureMask.g, _EnableWireframe);
+            colour = lerp(wireframeColour, wireframeColour * colour.a, _MainColourAlphaAffectsWireframe);
+        #else
+            colour = ApplyWireframeColour(colour, fragIn, specialEffectsFeatureMask.g, _EnableWireframe);
+        #endif
 
         // rainbow colour effect
         // for now just a colour change over time based on normal direction, nothing fancy
         // but it looks neat
-        if(_EnableRainbowEffect)
-        {
-            float4 rainbowColour = float4(sin(normalize(fragIn.worldNormal).xyz * _RainbowWaveSize), 1) * 0.5 + 0.5;
-            rainbowColour = ApplyHSVChangesToRGB(rainbowColour, float3(_Time.y / _RainbowSpeed, 0, 0));
-            colour = lerp(colour, rainbowColour, specialEffectsFeatureMask.b);
-        }
+        float4 rainbowColour = float4(sin(normalize(fragIn.worldNormal).xyz * _RainbowWaveSize), 1) * 0.5 + 0.5;
+        rainbowColour = ApplyHSVChangesToRGB(rainbowColour, float3(_Time.y / _RainbowSpeed, 0, 0));
+        colour = lerp(colour, rainbowColour, specialEffectsFeatureMask.b * _EnableRainbowEffect);
 
         // colour inversion
     #endif

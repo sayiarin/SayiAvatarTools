@@ -1,5 +1,5 @@
 #ifndef UNITY_PASS_FORWARDADD
-float4 ApplyWireframeColour(float4 colour, Interpolators interpolators, float wireframeMaskValue)
+float4 ApplyWireframeColour(float4 colour, Interpolators interpolators, float wireframeMaskValue, float settingsModifier)
 {
     float3 distance = interpolators.edgeDistance;
     float wireframeAlpha = min(distance.x, min(distance.y, distance.z));
@@ -21,7 +21,7 @@ float4 ApplyWireframeColour(float4 colour, Interpolators interpolators, float wi
 
     // apply wireframe colour if wireframe is to be rendered here
     float4 wireframeColour = lerp(float4(abs(interpolators.worldNormal).xyz, 1), _WireframeColour, _WireframeColour.a);
-    colour = lerp(colour, wireframeColour, wireframeAlpha * wireframeMaskValue);
+    colour = lerp(colour, wireframeColour, wireframeAlpha * wireframeMaskValue * settingsModifier);
 
     return colour;
 }
