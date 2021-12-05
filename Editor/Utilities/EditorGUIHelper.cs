@@ -3,10 +3,11 @@ using UnityEditor;
 
 namespace SayiTools
 {
-
     public class EditorGUIHelper : Editor
     {
         public const string PROGRESS_TITLE = "Sayi Tools";
+
+        private static GUIStyle FoldoutStyle = null;
 
         public static void HeaderLevel1(string headerText)
         {
@@ -36,6 +37,39 @@ namespace SayiTools
             headerStyle.alignment = TextAnchor.MiddleCenter;
             GUILayout.Label(headerText, headerStyle);
             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+            GUILayout.Space(EditorGUIUtility.singleLineHeight);
+        }
+
+        public static GUIStyle GetFoldoutStyle()
+        {
+            if (FoldoutStyle == null)
+            {
+                FoldoutStyle = new GUIStyle(EditorStyles.foldout);
+                FoldoutStyle.fontStyle = FontStyle.Bold;
+                FoldoutStyle.fontSize = 14;
+                FoldoutStyle.normal.textColor = Color.cyan;
+                FoldoutStyle.onNormal.textColor = Color.cyan;
+            }
+
+            return FoldoutStyle;
+        }
+
+        public static void BeginBox()
+        {
+            // the multiple vertical/horizontal layouts and
+            // the space after the horizontal is important for proper spacing
+            EditorGUILayout.BeginVertical();
+            EditorGUILayout.BeginHorizontal(GUI.skin.box);
+            GUILayout.Space(EditorGUIUtility.singleLineHeight);
+            EditorGUILayout.BeginVertical();
+        }
+
+        public static void EndBox()
+        {
+            EditorGUILayout.EndVertical();
+            GUILayout.Space(EditorGUIUtility.singleLineHeight);
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.EndVertical();
             GUILayout.Space(EditorGUIUtility.singleLineHeight);
         }
     }
