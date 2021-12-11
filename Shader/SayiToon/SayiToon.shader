@@ -127,26 +127,40 @@
             Blend One One
 
             CGPROGRAM
+
             #pragma vertex VertexFunction
             #pragma fragment FragmentFunction
 
-            #pragma multi_compile_fwdadd_fullshadows
             #pragma multi_compile_local __ SAYI_LIT
+            #if SAYI_LIT
+                #pragma multi_compile_fwdadd_fullshadows
 
-            #define _NEEDS_WORLD_NORMAL
-            #define _NEEDS_VERTEX_NORMAL
-            #define _NEEDS_WORLD_POSITION
-            #define _NEEDS_VIEW_DIRECTION
+                #define _NEEDS_WORLD_NORMAL
+                #define _NEEDS_VERTEX_NORMAL
+                #define _NEEDS_WORLD_POSITION
+                #define _NEEDS_VIEW_DIRECTION
 
-            #include "UnityCG.cginc"
-            #include "Lighting.cginc"
-            #include "UnityLightingCommon.cginc"
-            #include "AutoLight.cginc"
+                #include "UnityCG.cginc"
+                #include "Lighting.cginc"
+                #include "UnityLightingCommon.cginc"
+                #include "AutoLight.cginc"
 
-            #include "../CGIncludes/Properties.cginc"
+                #include "../CGIncludes/Properties.cginc"
 
-            #include "../CGIncludes/VertexFunction.cginc"
-            #include "../CGIncludes/FragmentFunction.cginc"
+                #include "../CGIncludes/VertexFunction.cginc"
+                #include "../CGIncludes/FragmentFunction.cginc"
+            #else
+                struct EmptyData {};
+                EmptyData VertexFunction(MeshData meshData)
+                {
+                    EmptyData output;
+                    return output;
+                }
+                fixed4 Fragment(EmptyData empty) : SV_TARGET
+                {
+                    discard;
+                }
+            #endif
             ENDCG
         }
 
