@@ -149,6 +149,14 @@ A - Colour Inversion";
 
         EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
 
+        bool worldPosTex = ToggleProperty("_EnableWorldPosTexture", "World Position Texture");
+        EditorGUI.BeginDisabledGroup(!worldPosTex);
+        TextureProperty("_WorldPosTexture", "Texture");
+        RangeProperty("_WorldPosTextureZoom", "Zoom");
+        EditorGUI.EndDisabledGroup();
+
+        EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
+
         ToggleProperty("_InvertColours", "Invert Colours");
 
         EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);

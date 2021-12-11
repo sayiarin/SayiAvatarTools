@@ -31,7 +31,7 @@
         [Space]
         [Toggle]_EnableWorldPosTexture("Enable World Position Texture", int) = 0
         _WorldPosTexture("World Position Texture", 2D) = "black" {}
-        _WorldPosTextureZoom("World Position Texture Zoom level", Range(0.01, 10)) = 1
+        _WorldPosTextureZoom("World Position Texture Zoom level", Range(0.01, 2)) = 1
         [Space]
         [Header(Special Effects)]
         _SpecialFeatureMask("Special Effects Feature Mask", 2D) = "white" {}
