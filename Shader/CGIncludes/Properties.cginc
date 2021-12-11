@@ -54,7 +54,7 @@ uniform float _RainbowWaveSize;
 uniform int _InvertColours;
 
 // lighting variables
-#ifdef _LIT
+#if SAYI_LIT
 uniform int _EnableDirectionalShadow;
 uniform float _ShadowSmoothness;
 uniform float _ShadowStrength;
@@ -80,6 +80,6 @@ uniform float _GlowSpeed;
 uniform float4 _WireframeColour;
 uniform float _WireframeWidth;
 uniform float _WireframeFadeOutDistance;
-#ifdef _TRANSPARENT
+#if SAYI_TRANSPARENT
 uniform int _MainColourAlphaAffectsWireframe;
 #endif

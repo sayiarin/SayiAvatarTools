@@ -1,6 +1,6 @@
 // for some weird reason I have to #ifdef everywhere otherwise my unlit shader variants have compile errors
 // not quite sure yet what's going on there, I'll figure it out eventually when I learn how to make proper shader variants I guess
-#ifdef _LIT
+#if SAYI_LIT
 float GetCelShadedLightIntensity(float3 normal, float3 lightDirection)
 {
     float lightIntensity = 0.0f;
@@ -70,7 +70,7 @@ float3 CalculateVertexLightsWithToonShading(float3 worldNormal, float3 worldPosi
 
 float3 CalculatedLightColour(Interpolators fragIn)
 {
-    #ifdef _LIT
+    #if SAYI_LIT
         float3 lightColour = _LightColor0.rgb;
 
         // different add distance based falloff for lightcolour, then continue with shadow calculation
@@ -138,7 +138,7 @@ float3 SpecularLight(float3 vertexNormal, float3 viewDirection, float4 colour)
     float3 lightPosition;
     // fake light as white for unlit variants
     float3 lightColour = float3(1, 1, 1);
-    #ifdef _LIT
+    #if SAYI_LIT
         lightPosition = _WorldSpaceLightPos0;
         lightColour = _LightColor0.rgb;
     #else

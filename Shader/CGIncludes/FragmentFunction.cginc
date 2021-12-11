@@ -15,7 +15,6 @@ float4 FragmentFunction (Interpolators fragIn) : SV_TARGET
     #endif
 
     float4 specialEffectsFeatureMask = tex2D(_SpecialFeatureMask, fragIn.uv);
-    float3 materialFeatureMask = tex2D(_MaterialFeatureMask, fragIn.uv);
 
     // colour inverion is just 1 - colour
     colour.rgb = lerp(colour.rgb, 1 - colour.rgb, _InvertColours * specialEffectsFeatureMask.a);
@@ -27,15 +26,17 @@ float4 FragmentFunction (Interpolators fragIn) : SV_TARGET
     // apply lighting
     colour.rgb *= CorrectedLightColour(fragIn);
 
-    // specular highlights, using blinn phong
-    float3 specularLight = SpecularLight(fragIn.vertexNormal, fragIn.viewDirection, colour);
-    colour.rgb = lerp(colour.rgb, specularLight, materialFeatureMask.g);
-    
-    // apply world space aligned 2d texture
-    float3 alignedWorldPosTexture = GetAlignedWorldPosTexture(fragIn);
-    colour.rgb = lerp(colour.rgb, alignedWorldPosTexture, materialFeatureMask.b * _EnableWorldPosTexture);
-
     #ifdef UNITY_PASS_FORWARDBASE
+        float3 materialFeatureMask = tex2D(_MaterialFeatureMask, fragIn.uv);
+
+        // specular highlights, using blinn phong
+        float3 specularLight = SpecularLight(fragIn.vertexNormal, fragIn.viewDirection, colour);
+        colour.rgb = lerp(colour.rgb, specularLight, materialFeatureMask.g);
+        
+        // apply world space aligned 2d texture
+        float3 alignedWorldPosTexture = GetAlignedWorldPosTexture(fragIn);
+        colour.rgb = lerp(colour.rgb, alignedWorldPosTexture, materialFeatureMask.b * _EnableWorldPosTexture);
+
         // reflection using red channel
         float3 reflectionValue = GetReflection(fragIn);
         reflectionValue = lerp(colour.rgb, reflectionValue, _Reflectiveness);
@@ -49,7 +50,7 @@ float4 FragmentFunction (Interpolators fragIn) : SV_TARGET
         colour = lerp(colour, glowColour, glowColour.a * _EnableGlow);
 
         // wireframe
-        #ifdef _TRANSPARENT
+        #if SAYI_TRANSPARENT
             float4 wireframeColour = ApplyWireframeColour(colour, fragIn, specialEffectsFeatureMask.g, _EnableWireframe);
             colour = lerp(wireframeColour, wireframeColour * colour.a, _MainColourAlphaAffectsWireframe);
         #else

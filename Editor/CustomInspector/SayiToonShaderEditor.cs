@@ -21,14 +21,17 @@ B - Rainbow Effect
 A - Colour Inversion";
     private const string GlowInfoMessage = "For the glow provide a texture. The glow will appear in the colour of any part, transparent values will mean the base texture is rendered instead.";
 
-    protected MaterialEditor MatEditor;
-    protected MaterialProperty[] Properties;
+    private MaterialEditor MatEditor;
+    private MaterialProperty[] Properties;
+    private Material Mat;
 
+    private bool AlphaAsTransparent = false;
 
     public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
     {
         MatEditor = materialEditor;
         Properties = properties;
+        Mat = materialEditor.target as Material;
 
         SayiTools.EditorGUIHelper.HeaderLevel1("Sayi Toon");
 
@@ -49,6 +52,30 @@ A - Colour Inversion";
     {
         MaterialProperty cullMode = FindProperty("_CullMode", Properties);
         MatEditor.ShaderProperty(cullMode, "Cull Mode");
+
+        EditorGUI.BeginChangeCheck();
+        AlphaAsTransparent = EditorGUILayout.Toggle("Alpha as Transparency", AlphaAsTransparent);
+        if (EditorGUI.EndChangeCheck())
+        {
+            if (AlphaAsTransparent)
+            {
+                Mat.SetOverrideTag("RenderType", "Transparent");
+                Mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                Mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                Mat.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+                Mat.EnableKeyword("SAYI_TRANSPARENT");
+            }
+            else
+            {
+                Mat.SetOverrideTag("RenderType", "Opaque");
+                Mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+                Mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
+                Mat.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Geometry;
+                Mat.DisableKeyword("SAYI_TRANSPARENT");
+            }
+        }
+        MatEditor.RenderQueueField();
+        ToggleKeyword("SAYI_LIT", "Affected by Environment Lighting");
 
         EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
 
@@ -94,9 +121,9 @@ A - Colour Inversion";
         RangeProperty("_HueShift", "Hue");
         RangeProperty("_SaturationValue", "Saturation");
         RangeProperty("_ColourValue", "Value");
-        
+
         EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
-        
+
         bool outline = ToggleProperty("_EnableOutline", "Enable Outline");
         EditorGUI.BeginDisabledGroup(!outline);
         RangeProperty("_OutlineWidth", "Width");
@@ -158,6 +185,7 @@ A - Colour Inversion";
 
         bool prevState = EditorPrefs.GetBool(toggleKey, false);
         bool state = EditorGUILayout.Foldout(prevState, title, SayiTools.EditorGUIHelper.GetFoldoutStyle());
+
         if (prevState != state)
         {
             EditorPrefs.SetBool(toggleKey, state);
@@ -210,6 +238,20 @@ A - Colour Inversion";
         prop.floatValue = state ? 1.0f : 0.0f;
 
         return state;
+    }
+
+    private void ToggleKeyword(string keyword, string label)
+    {
+        bool state = Mat.IsKeywordEnabled(keyword);
+        state = EditorGUILayout.Toggle(label, state);
+        if (state)
+        {
+            Mat.EnableKeyword(keyword);
+        }
+        else
+        {
+            Mat.DisableKeyword(keyword);
+        }
     }
 }
 #endif
