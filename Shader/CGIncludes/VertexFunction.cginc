@@ -5,7 +5,7 @@ Interpolators VertexFunction(MeshData meshData)
 	Interpolators output;
 	output.pos = UnityObjectToClipPos(meshData.vertex);
 	output.uv = meshData.uv;
-
+	
 	#ifdef _NEEDS_WORLD_POSITION
 		output.worldPosition = mul(unity_ObjectToWorld, meshData.vertex);
 

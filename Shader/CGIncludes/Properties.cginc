@@ -22,11 +22,16 @@ uniform float _OverallBrightness;
 // Material Features, Mask uses rgb channels for different settings
 // r - reflection/smoothness
 // g - specular highlights
-// b - height map
+// b - scrolling texture
 uniform sampler2D _MaterialFeatureMask;
 uniform float _Reflectiveness;
 uniform float _Smoothness;
 uniform float _SpecularHighlightExponent;
+
+// screen position texture
+uniform int _EnableWorldPosTexture;
+uniform sampler2D _WorldPosTexture;
+uniform float _WorldPosTextureZoom;
 
 // special feature map, using rgb channels for different settings
 // r - HSV Changes

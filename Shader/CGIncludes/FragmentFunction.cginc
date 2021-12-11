@@ -2,6 +2,7 @@
 #include "Wireframe.cginc"
 #include "Reflection.cginc"
 #include "LightUtilities.cginc"
+#include "WorldPosTexture.cginc"
 
 float4 FragmentFunction (Interpolators fragIn) : SV_TARGET
 {
@@ -29,6 +30,10 @@ float4 FragmentFunction (Interpolators fragIn) : SV_TARGET
     // specular highlights, using blinn phong
     float3 specularLight = SpecularLight(fragIn.vertexNormal, fragIn.viewDirection, colour);
     colour.rgb = lerp(colour.rgb, specularLight, materialFeatureMask.g);
+    
+    // apply world space aligned 2d texture
+    float3 alignedWorldPosTexture = GetAlignedWorldPosTexture(fragIn);
+    colour.rgb = lerp(colour.rgb, alignedWorldPosTexture, materialFeatureMask.b * _EnableWorldPosTexture);
 
     #ifdef UNITY_PASS_FORWARDBASE
         // reflection using red channel

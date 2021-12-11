@@ -23,11 +23,11 @@ struct Interpolators
     float2 uv: TEXCOORD0;
 
     #ifdef _NEEDS_WORLD_POSITION
-        float4 worldPosition: TEXCOORD6;
+        float4 worldPosition: TEXCOORD7;
     #endif
 
     #ifdef _NEEDS_VIEW_DIRECTION
-        float3 viewDirection: TEXCOORD7;
+        float3 viewDirection: TEXCOORD8;
     #endif
 
     #ifdef _NEEDS_GRAB_UV

@@ -7,7 +7,7 @@
         // decent enough for people that don't have the shader shown
         [Header(Settings for the Fallback shader)]
         _MainTex ("Fallback Texture", 2D) = "white" {}
-        _Glossiness ("Smoothness", Float) = 0 
+        _Glossiness ("Smoothness", Range(0, 1)) = 0 
         _Metallic ("Metallic", Range(0, 1)) = 0.0
         [Space]
         [Header(Texture Settings)]
@@ -28,6 +28,10 @@
         _Smoothness("Smoothness", Range(0, 1)) = 0
         _Reflectiveness("Reflectiveness", Range(0, 1)) = 0
         _SpecularHighlightExponent("Specular Highlight Exponent", Range(0.001, 2)) = .5
+        [Space]
+        [Toggle]_EnableWorldPosTexture("Enable World Position Texture", int) = 0
+        _WorldPosTexture("World Position Texture", 2D) = "black" {}
+        _WorldPosTextureZoom("World Position Texture Zoom level", Range(0.01, 10)) = 1
         [Space]
         [Header(Special Effects)]
         _SpecialFeatureMask("Special Effects Feature Mask", 2D) = "white" {}
@@ -63,6 +67,7 @@
         [Space]
         [Enum(Off, 0, Front, 1, Back, 2)] _CullMode("Culling Mode", int) = 2
     }
+    CustomEditor "SayiToonShaderEditor"
 
     SubShader
     {
