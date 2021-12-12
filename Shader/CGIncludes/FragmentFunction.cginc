@@ -7,12 +7,8 @@
 float4 FragmentFunction (Interpolators fragIn) : SV_TARGET
 {
     float4 colour;
-    #ifdef _SIMPLE
-        colour = tex2D(_MainTex, fragIn.uv);
-    #else
-        // get currently active texture from array as colour that will be output at the end
-        colour = UNITY_SAMPLE_TEX2DARRAY(_BaseTextures, float3(fragIn.uv, _TextureIndex));
-    #endif
+    // get currently active texture from array as colour that will be output at the end
+    colour = UNITY_SAMPLE_TEX2DARRAY(_BaseTextures, float3(fragIn.uv, _TextureIndex));
 
     float4 specialEffectsFeatureMask = tex2D(_SpecialFeatureMask, fragIn.uv);
 
@@ -41,6 +37,7 @@ float4 FragmentFunction (Interpolators fragIn) : SV_TARGET
         float3 reflectionValue = GetReflection(fragIn);
         reflectionValue = lerp(colour.rgb, reflectionValue, _Reflectiveness);
         colour.rgb = lerp(colour.rgb, reflectionValue, materialFeatureMask.r);
+        colour.a = lerp(colour.a, 1.0, _ReflectionIgnoresAlpha * colour.rgb);
 
         // glowwy
         float4 glowColour = float4(0, 0, 0, 0);

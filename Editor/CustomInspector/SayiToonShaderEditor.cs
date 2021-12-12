@@ -11,7 +11,8 @@ public class SayiToonShaderEditor : ShaderGUI
 For ease of use make sure you use the Texture Combiner(Tools > Sayi > ImageCombiner) to create the final mask, using black white as the basis for each colour channel will yield the best result.
 The setup is as follows:
 R - reflection/smoothness
-G - specular highlights";
+G - specular highlights
+B - world position texture";
     private const string SpecialEffectsInfoText = @"The Special Feature Mask maps special effects to parts of your texture using the different colour channels to distinguish between them.
 For ease of use make sure you use the Texture Combiner(Tools > Sayi > ImageCombiner) to create the final mask, using black white as the basis for each colour channel will yield the best result.
 The setup is as follows:
@@ -26,6 +27,7 @@ A - Colour Inversion";
     private Material Mat;
 
     private bool AlphaAsTransparent = false;
+    private bool EnableFur = false;
 
     public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
     {
@@ -110,6 +112,15 @@ A - Colour Inversion";
         RangeProperty("_Smoothness", "Smoothness");
         RangeProperty("_Reflectiveness", "Reflectiveness");
         RangeProperty("_SpecularHighlightExponent", "Specular Highlight Exponent");
+        ToggleProperty("_ReflectionIgnoresAlpha", "Allow Reflections on Transparent Surface");
+
+        EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
+
+        bool worldPosTex = ToggleProperty("_EnableWorldPosTexture", "World Position Texture");
+        EditorGUI.BeginDisabledGroup(!worldPosTex);
+        TextureProperty("_WorldPosTexture", "Texture");
+        RangeProperty("_WorldPosTextureZoom", "Zoom");
+        EditorGUI.EndDisabledGroup();
     }
 
     private void SpecialEffects()
@@ -146,14 +157,6 @@ A - Colour Inversion";
         EditorGUI.BeginDisabledGroup(!rainbow);
         RangeProperty("_RainbowSpeed", "Speed");
         RangeProperty("_RainbowWaveSize", "Wave Size");
-        EditorGUI.EndDisabledGroup();
-
-        EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
-
-        bool worldPosTex = ToggleProperty("_EnableWorldPosTexture", "World Position Texture");
-        EditorGUI.BeginDisabledGroup(!worldPosTex);
-        TextureProperty("_WorldPosTexture", "Texture");
-        RangeProperty("_WorldPosTextureZoom", "Zoom");
         EditorGUI.EndDisabledGroup();
 
         EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
