@@ -37,7 +37,9 @@ float4 FragmentFunction (Interpolators fragIn) : SV_TARGET
         float3 reflectionValue = GetReflection(fragIn);
         reflectionValue = lerp(colour.rgb, reflectionValue, _Reflectiveness);
         colour.rgb = lerp(colour.rgb, reflectionValue, materialFeatureMask.r);
-        colour.a = lerp(colour.a, 1.0, _ReflectionIgnoresAlpha * colour.rgb);
+        // lerp between original and full reflectiveness depending on whether the setting is activated,
+        // the colour is actually of any value (reflection exists) and the area has reflection
+        colour.a = lerp(colour.a, 1.0, _ReflectionIgnoresAlpha * colour.rgb * materialFeatureMask.r);
 
         // glowwy
         float4 glowColour = float4(0, 0, 0, 0);
