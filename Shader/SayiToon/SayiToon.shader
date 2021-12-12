@@ -81,7 +81,7 @@
         Pass
         {
             Tags { "LightMode" = "ForwardBase" }
-            Name "Sayi Toon Base"
+            Name "SayiToonBase"
             
             Cull[_CullMode]
             ZWrite [_ZWrite]
@@ -120,7 +120,7 @@
         Pass
         {
             Tags { "LightMode" = "ForwardAdd" }
-            Name "Sayi Toon Add"
+            Name "SayiToonForwardAdd"
 
             Cull[_CullMode]
             ZWrite Off
@@ -159,7 +159,7 @@
 
         Pass
         {
-            Name "Sayi Toon Outline"
+            Name "SayiToonOutline"
 
             LOD 200
             Cull Front
@@ -176,7 +176,7 @@
         Pass
         {
             Tags { "LightMode" = "ShadowCaster" }
-            Name "Sayi Toon ShadowCaster"
+            Name "SayiToonShadowCaster"
 
             CGPROGRAM
             #pragma vertex Vertex

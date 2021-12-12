@@ -75,7 +75,8 @@ A - Colour Inversion";
             }
         }
         MatEditor.RenderQueueField();
-        ToggleKeyword("SAYI_LIT", "Affected by Environment Lighting");
+        bool litState = ToggleKeyword("SAYI_LIT", "Affected by Environment Lighting");
+        Mat.SetShaderPassEnabled("SayiToonForwardAdd", litState);
 
         EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
 
@@ -248,7 +249,7 @@ A - Colour Inversion";
         return state;
     }
 
-    private void ToggleKeyword(string keyword, string label)
+    private bool ToggleKeyword(string keyword, string label)
     {
         bool state = Mat.IsKeywordEnabled(keyword);
         state = EditorGUILayout.Toggle(label, state);
@@ -260,6 +261,8 @@ A - Colour Inversion";
         {
             Mat.DisableKeyword(keyword);
         }
+
+        return state;
     }
 }
 #endif
