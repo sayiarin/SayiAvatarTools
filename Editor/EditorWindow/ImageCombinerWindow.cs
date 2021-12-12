@@ -10,6 +10,7 @@ namespace SayiTools
     {
         private const string FILE_ENDING = "png";
         private const string IMAGE_INFO_MESSAGE = "Combines multiple images into one, using the average colour of a pixel of one image and adding it to the R, G, B, or A channel of the target texture accordingly\nIf no texture is supplied the value will be assumed as 0 (black). Alpha Values in the source images will be discarded.";
+        private static readonly string[] DefaultColourOptions = new string[] { "Black", "White" };
 
         private string OutputPath = "Assets";
         private string OutputName = "CombinedImage";
@@ -19,7 +20,13 @@ namespace SayiTools
         private Texture2D ChannelB;
         private Texture2D ChannelA;
 
+        private int RedFallback = 0;
+        private int GreenFallback = 0;
+        private int BlueFallback = 0;
+        private int AlphaFallback = 0;
+
         private bool TexturesValid = true;
+
         List<Texture2D> Textures = new List<Texture2D>();
 
         [MenuItem("Tools/Sayi/Image Combiner")]
@@ -37,9 +44,17 @@ namespace SayiTools
             GUILayout.Space(EditorGUIUtility.singleLineHeight);
 
             ChannelR = (Texture2D)EditorGUILayout.ObjectField("Red Channel Image", ChannelR, typeof(Texture2D), false);
+            RedFallback = EditorGUILayout.Popup("Fallback Red", RedFallback, DefaultColourOptions);
+            EditorGUIHelper.Separator();
             ChannelG = (Texture2D)EditorGUILayout.ObjectField("Green Channel Image", ChannelG, typeof(Texture2D), false);
+            GreenFallback = EditorGUILayout.Popup("Fallback Green", GreenFallback, DefaultColourOptions);
+            EditorGUIHelper.Separator();
             ChannelB = (Texture2D)EditorGUILayout.ObjectField("Blue Channel Image", ChannelB, typeof(Texture2D), false);
+            BlueFallback = EditorGUILayout.Popup("Fallback Blue", BlueFallback, DefaultColourOptions);
+            EditorGUIHelper.Separator();
             ChannelA = (Texture2D)EditorGUILayout.ObjectField("Alpha Channel Image", ChannelA, typeof(Texture2D), false);
+            AlphaFallback = EditorGUILayout.Popup("Fallback Alpha", AlphaFallback, DefaultColourOptions);
+            EditorGUIHelper.Separator();
 
             // maybe not optimal to use a List<> here, but it's fast enough for this limited dataset
             // and will be very helpful later too
@@ -48,6 +63,7 @@ namespace SayiTools
             if (ChannelG) Textures.Add(ChannelG);
             if (ChannelB) Textures.Add(ChannelB);
             if (ChannelA) Textures.Add(ChannelA);
+
 
             TexturesValid = TextureHelper.TexturesShareDimensionsAndFormat(Textures.ToArray());
             if (Textures.Count != 0 && TexturesValid == false)
@@ -109,10 +125,10 @@ namespace SayiTools
             {
                 for (int x = 0; x < Textures[0].height; x++)
                 {
-                    float redChannel = SampleAverageScalarFromTexture(ChannelR, x, y);
-                    float greenChannel = SampleAverageScalarFromTexture(ChannelG, x, y);
-                    float blueChannel = SampleAverageScalarFromTexture(ChannelB, x, y);
-                    float alphaChannel = SampleAverageScalarFromTexture(ChannelA, x, y);
+                    float redChannel = SampleAverageScalarFromTexture(ChannelR, x, y, RedFallback);
+                    float greenChannel = SampleAverageScalarFromTexture(ChannelG, x, y, GreenFallback);
+                    float blueChannel = SampleAverageScalarFromTexture(ChannelB, x, y, BlueFallback);
+                    float alphaChannel = SampleAverageScalarFromTexture(ChannelA, x, y, AlphaFallback);
                     Color combinedColor = new Color(redChannel, greenChannel, blueChannel, alphaChannel);
                     combinedTexture.SetPixel(x, y, combinedColor);
                 }
@@ -136,7 +152,7 @@ namespace SayiTools
             EditorUtility.ClearProgressBar();
         }
 
-        private float SampleAverageScalarFromTexture(Texture2D texture, int x, int y)
+        private float SampleAverageScalarFromTexture(Texture2D texture, int x, int y, int fallback)
         {
             if (texture)
             {
@@ -148,7 +164,7 @@ namespace SayiTools
                 }
                 return combinedScalarValue / 3;
             }
-            return 0.0f;
+            return (float)fallback;
         }
 
         private string GetOutputPath()
