@@ -29,7 +29,7 @@ namespace SayiTools
 
         List<Texture2D> Textures = new List<Texture2D>();
 
-        [MenuItem("Tools/Sayi/Image Combiner")]
+        [MenuItem("Tools/Sayi/Image Combiner", priority = 0)]
         public static void Init()
         {
             GetWindow<ImageCombinerWindow>("Image Combiner").Show();

@@ -22,7 +22,7 @@ namespace SayiTools
 
         private Texture2D NoiseTexture;
 
-        [MenuItem("Tools/Sayi/Noise Generator")]
+        [MenuItem("Tools/Sayi/Noise Generator", priority = 1)]
         public static void Init()
         {
             GetWindow<NoiseGeneratorWindow>("Noise Generator").Show();
