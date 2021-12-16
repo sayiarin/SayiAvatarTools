@@ -136,7 +136,10 @@ namespace SayiTools
                         }
                         finally
                         {
+                            EditorUtility.DisplayProgressBar(EditorGUIHelper.GetProgressBarTitle("Updater"), "Updating Database ...", 0);
                             AssetDatabase.StopAssetEditing();
+                            AssetDatabase.Refresh();
+                            EditorUtility.ClearProgressBar();
                         }
                         break;
                 }
@@ -201,7 +204,6 @@ namespace SayiTools
             }
             EditorUtility.DisplayProgressBar(EditorGUIHelper.GetProgressBarTitle("Updater"), "Removing old files ...", 0.5f);
             RemoveOldFiles(EditorHelper.GetPathInSayiTools());
-            EditorUtility.ClearProgressBar();
             UpdateLocalVersion();
         }
 
@@ -211,23 +213,32 @@ namespace SayiTools
             {
                 if (DownloadedFileList.Contains(file) == false)
                 {
-                    File.Delete(file);
+                    try
+                    {
+                        File.Delete(file);
+                    }
+                    finally
+                    {
+                        // do nothing
+                    }
                 }
             }
             foreach (var directory in Directory.GetDirectories(path))
             {
-                if (directory.Contains("/.git/"))
-                {
-                    // ignore git directory
-                    continue;
-                }
                 if (DownloadedFileList.Contains(directory))
                 {
                     RemoveOldFiles(path);
                 }
                 else
                 {
-                    Directory.Delete(directory, true);
+                    try
+                    {
+                        Directory.Delete(directory, true);
+                    }
+                    finally
+                    {
+                        // do nothing
+                    }
                 }
             }
         }
