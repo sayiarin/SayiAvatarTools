@@ -19,15 +19,15 @@ namespace SayiTools
                 return;
             }
 
-            EditorUtility.DisplayProgressBar(EditorGUIHelper.PROGRESS_TITLE, "Creating tex2d array ...", 0f);
+            EditorUtility.DisplayProgressBar(EditorGUIHelper.GetProgressBarTitle("Texture2D Array"), "Creating tex2d array ...", 0f);
             Texture2DArray textureArray = TextureArrayManagerEditor.CreateTexture2DArray(textures);
-            EditorUtility.DisplayProgressBar(EditorGUIHelper.PROGRESS_TITLE, "Saving Assets ...", .5f);
+            EditorUtility.DisplayProgressBar(EditorGUIHelper.GetProgressBarTitle("Texture2D Array"), "Saving Assets ...", .5f);
             string assetPath = AssetDatabase.GetAssetPath(textures[0]);
             assetPath = assetPath.Remove(assetPath.LastIndexOf('/')) + "/GeneratedTexture2DArray.asset";
             AssetDatabase.CreateAsset(textureArray, assetPath);
             AssetDatabase.SaveAssets();
 
-            EditorUtility.DisplayProgressBar(EditorGUIHelper.PROGRESS_TITLE, "Finished!", 1f);
+            EditorUtility.DisplayProgressBar(EditorGUIHelper.GetProgressBarTitle("Texture2D Array"), "Finished!", 1f);
             Debug.Log(String.Format("Texture Array successfully created at {0}!", assetPath));
             Selection.activeObject = textureArray;
             EditorUtility.ClearProgressBar();

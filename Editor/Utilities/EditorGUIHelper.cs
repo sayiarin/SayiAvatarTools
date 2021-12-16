@@ -3,7 +3,7 @@ using UnityEditor;
 
 namespace SayiTools
 {
-    public class EditorGUIHelper : Editor
+    public class EditorGUIHelper
     {
         public const string PROGRESS_TITLE = "Sayi Tools";
 
@@ -71,6 +71,27 @@ namespace SayiTools
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndVertical();
             GUILayout.Space(EditorGUIUtility.singleLineHeight);
+        }
+
+        public static string GetProgressBarTitle(string title = null)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                return PROGRESS_TITLE;
+            }
+            else
+            {
+                return PROGRESS_TITLE + " - " + title;
+            }
+        }
+
+        public static void FlexSpaceText(string label, string text)
+        {
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField(label);
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.LabelField(text);
+            EditorGUILayout.EndHorizontal();
         }
     }
 }

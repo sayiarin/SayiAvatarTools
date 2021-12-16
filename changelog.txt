@@ -1,0 +1,5 @@
+#-- Version 1.1.0 --#
+Added easy to use updater
+
+#-- Version 1.0.0 --#
+Initial release of SayiTools with SayiToon Shader, Texture Array Manager, Image Combiner and a simple Perlin Noise Generator

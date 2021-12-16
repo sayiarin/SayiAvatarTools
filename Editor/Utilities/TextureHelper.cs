@@ -1,9 +1,8 @@
 ﻿using UnityEngine;
-using UnityEditor;
 
 namespace SayiTools
 {
-    public class TextureHelper : Editor
+    public class TextureHelper
     {
         public static bool TexturesShareDimensionsAndFormat(Texture2D[] textures)
         {
