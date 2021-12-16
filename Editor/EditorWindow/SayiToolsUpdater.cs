@@ -80,7 +80,7 @@ namespace SayiTools
             EditorGUILayout.LabelField("local Changelog:");
             if (ChangelogAsset == null)
             {
-                UpdateChangelogText();
+                ChangelogAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(EditorHelper.GetPathInSayiTools("changelog.txt"));
             }
 
             ChangelogScrollPosition = GUILayout.BeginScrollView(ChangelogScrollPosition);
@@ -106,7 +106,7 @@ namespace SayiTools
             EditorGUIHelper.FlexSpaceText("Local Version:", LocalVersion.ToString());
             EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
 
-            if (RemoteVersion >= LocalVersion)
+            if (RemoteVersion > LocalVersion)
             {
                 EditorGUILayout.HelpBox("An update is available.\nPlease note that the automatic updater will override all local changes within the Sayi Avatar Tools root folder!", MessageType.Warning);
                 EditorGUI.BeginDisabledGroup(UpdateDownloadRequestState != WebRequestState.None);
@@ -129,7 +129,15 @@ namespace SayiTools
                         EditorGUILayout.HelpBox(string.Format("Encountered an error while fetching Version:\n{0}", UpdateDownloadRequest.error), MessageType.Error);
                         break;
                     case WebRequestState.Success:
-                        UpdateFiles();
+                        try
+                        {
+                            AssetDatabase.StartAssetEditing();
+                            UpdateFiles();
+                        }
+                        finally
+                        {
+                            AssetDatabase.StopAssetEditing();
+                        }
                         break;
                 }
             }
@@ -143,11 +151,6 @@ namespace SayiTools
         {
             TextAsset versionFile = AssetDatabase.LoadAssetAtPath<TextAsset>(EditorHelper.GetPathInSayiTools("version.txt"));
             LocalVersion = new System.Version(versionFile.text);
-        }
-
-        private void UpdateChangelogText()
-        {
-            ChangelogAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(EditorHelper.GetPathInSayiTools("changelog.txt"));
         }
 
         private void CheckForUpdate()
@@ -198,9 +201,7 @@ namespace SayiTools
             }
             EditorUtility.DisplayProgressBar(EditorGUIHelper.GetProgressBarTitle("Updater"), "Removing old files ...", 0.5f);
             RemoveOldFiles(EditorHelper.GetPathInSayiTools());
-
             EditorUtility.ClearProgressBar();
-            AssetDatabase.Refresh();
             UpdateLocalVersion();
         }
 
@@ -215,6 +216,11 @@ namespace SayiTools
             }
             foreach (var directory in Directory.GetDirectories(path))
             {
+                if (directory.Contains("/.git/"))
+                {
+                    // ignore git directory
+                    continue;
+                }
                 if (DownloadedFileList.Contains(directory))
                 {
                     RemoveOldFiles(path);
