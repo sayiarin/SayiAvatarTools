@@ -9,7 +9,5 @@ To install them just download the zip file and just move its content into the un
 
 I will not provide a unitypackage.
 
----
-
-The original repo is hosted on [gitlab and can be found here](https://gitlab.com/sayiarin/sayiavatartools). The [github repo](https://github.com/sayiarin/SayiAvatarTools) is just a mirror.
-
+## Update
+To update, please go to Tools > SayiTools > Update. This will open a new window which checks if a newer version is available and can install the most up to date version automatically by the press of a button.
